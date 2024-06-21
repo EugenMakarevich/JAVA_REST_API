@@ -15,18 +15,17 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.coherentsolutions.aqa.java.api.makarevich.configuration.Configuration.API_TOKEN_URL;
+import static com.coherentsolutions.aqa.java.api.makarevich.configuration.Configuration.API_REQUEST_URI;
+import static com.coherentsolutions.aqa.java.api.makarevich.configuration.Configuration.API_TOKEN_ENDPOINT;
 
 public class TokenService {
     private static TokenService instance;
     private final CloseableHttpClient client;
-    private final String tokenUrl;
     private final ObjectMapper objectMapper;
 
     private TokenService() {
         HttpClient httpClient = HttpClient.getInstance();
         client = httpClient.getHttpClient();
-        tokenUrl = API_TOKEN_URL;
         objectMapper = new ObjectMapper();
     }
 
@@ -46,7 +45,7 @@ public class TokenService {
     }
 
     private String getToken(String scope) throws IOException {
-        HttpPost httpPost = new HttpPost(tokenUrl);
+        HttpPost httpPost = new HttpPost(API_REQUEST_URI + API_TOKEN_ENDPOINT);
 
         List<NameValuePair> params = new ArrayList<>();
         params.add(new BasicNameValuePair("grant_type", "client_credentials"));
