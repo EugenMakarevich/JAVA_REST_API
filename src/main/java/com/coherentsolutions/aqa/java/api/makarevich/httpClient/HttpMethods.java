@@ -57,14 +57,20 @@ public class HttpMethods {
 
         HttpPost httpPost = new HttpPost(API_REQUEST_URI + endpoint);
         httpPost.addHeader("Authorization", "Bearer " + token);
-
-        httpPost.setEntity(new StringEntity(json));
         httpPost.setHeader("Content-type", "application/json");
+        httpPost.setEntity(new StringEntity(json));
 
         try (CloseableHttpResponse response = client.execute(httpPost)) {
             int statusCode = response.getStatusLine().getStatusCode();
             String responseBody = EntityUtils.toString(response.getEntity());
-            return new HttpResponseWrapper(statusCode, responseBody);
+            if (statusCode >= HTTP_OK_MIN && statusCode <= HTTP_OK_MAX) {
+                System.out.println(responseBody);
+                return new HttpResponseWrapper(statusCode, responseBody);
+            } else {
+                String errorMessage = "Failed to make POST request. Status code: " + statusCode;
+                log.error(errorMessage);
+                throw new IOException(errorMessage);
+            }
         } catch (IOException e) {
             log.error("Error executing POST request", e);
             throw e;
