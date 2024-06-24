@@ -2,6 +2,7 @@ package com.coherentsolutions.aqa.java.api.makarevich;
 
 import com.coherentsolutions.aqa.java.api.makarevich.httpClient.HttpMethods;
 import com.coherentsolutions.aqa.java.api.makarevich.httpClient.HttpMethods.HttpResponseWrapper;
+import com.coherentsolutions.aqa.java.api.makarevich.service.ZipCodeService;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -13,8 +14,8 @@ import static java.lang.System.currentTimeMillis;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class ZipCodeTest {
-    private HttpMethods httpMethods = new HttpMethods();
-
+    private HttpMethods httpMethods = new HttpMethods(); //TODO: to move to the TestBase class
+    private ZipCodeService zipCodeService = new ZipCodeService();
     /*
     Scenario #1
     Given I am authorized user
@@ -27,8 +28,7 @@ public class ZipCodeTest {
     public void testGetZipCodes() throws IOException {
         HttpResponseWrapper response = httpMethods.get(API_ZIPCODES_ENDPOINT);
         ArrayList<String> arrayList = response.getReponseBodyAsArray();  //TODO:Create the bug: 201 status code instead 200
-        System.out.println(arrayList);
-        assertEquals(201, response.getStatusCode(), "Expected status code to be 200");
+        assertEquals(200, response.getStatusCode(), "Expected status code to be 200");
         assertFalse(arrayList.isEmpty(), "List of zip codes is empty");
     }
 
@@ -46,6 +46,7 @@ public class ZipCodeTest {
         String zipcode = String.valueOf(currentTimeMillis());
         HttpResponseWrapper response = httpMethods.post(API_ZIPCODES_EXPAND_ENDPOINT, "[\"" + zipcode + "\"]");
         ArrayList<String> arrayList = response.getReponseBodyAsArray();
+        //TODO: Add status codes as variables
         assertEquals(201, response.getStatusCode(), "Expected status code to be 201");
         assertTrue(arrayList.contains(zipcode), "Zip code was not added");
     }
@@ -65,13 +66,13 @@ public class ZipCodeTest {
     public void testAddAvailableDuplicatedZipCodes() throws IOException {
         String DupZipcode = String.valueOf(currentTimeMillis());
         String UniqueZipcode = String.valueOf(currentTimeMillis() + 1);
-        System.out.println(DupZipcode);
-        System.out.println(UniqueZipcode);
         HttpResponseWrapper response = httpMethods.post(API_ZIPCODES_EXPAND_ENDPOINT,
                 "[\"" + DupZipcode + "\",\"" + UniqueZipcode + "\",\"" + DupZipcode + "\"]");
         ArrayList<String> arrayList = response.getReponseBodyAsArray();
         assertEquals(201, response.getStatusCode(), "Expected status code to be 201");
-        assertTrue(arrayList.contains(UniqueZipcode), "Zip code was not added");
+        assertTrue(arrayList.contains(UniqueZipcode), "Unique zip code was not added");
+        assertTrue(arrayList.contains(DupZipcode), "Duplicated zip code was not added");
+        assertFalse(zipCodeService.isDuplicatedZipcodesPresent(arrayList, DupZipcode), "Duplicated zip codes present");
     }
 
     /*
@@ -86,16 +87,17 @@ public class ZipCodeTest {
     Means you're trying to add zipcodes that are already present in DB
     */
     @Test
-    public void testAddAvailableDuplicaZipCodes() throws IOException {
-        String DupZipcode = String.valueOf(currentTimeMillis());
-        String UniqueZipcode = String.valueOf(currentTimeMillis() + 1);
-        System.out.println(DupZipcode);
-        System.out.println(UniqueZipcode);
-        HttpResponseWrapper response = httpMethods.post(API_ZIPCODES_EXPAND_ENDPOINT,
-                "[\"" + DupZipcode + "\",\"" + UniqueZipcode + "\",\"" + DupZipcode + "\"]");
-        ArrayList<String> arrayList = response.getReponseBodyAsArray();
-        assertEquals(201, response.getStatusCode(), "Expected status code to be 201");
-        assertTrue(arrayList.contains(UniqueZipcode), "Zip code was not added");
-    }
+    public void testAddAlreadyExistsZipCodes() throws IOException {
+        String existZipCode = String.valueOf(currentTimeMillis());
+        HttpResponseWrapper beforeResponse = httpMethods.post(API_ZIPCODES_EXPAND_ENDPOINT,
+                "[\"" + existZipCode + "\"]");
+        ArrayList<String> beforeList = beforeResponse.getReponseBodyAsArray();
+        assertTrue(beforeList.contains(existZipCode), "Zip code was not added");
 
+        HttpResponseWrapper afterResponse = httpMethods.post(API_ZIPCODES_EXPAND_ENDPOINT,
+                "[\"" + existZipCode + "\"]");
+        ArrayList<String> afterList = afterResponse.getReponseBodyAsArray();
+        assertEquals(201, afterResponse.getStatusCode(), "Expected status code to be 201");
+        assertFalse(zipCodeService.isDuplicatedZipcodesPresent(afterList, existZipCode), "Duplicated zip codes present");
+    }
 }

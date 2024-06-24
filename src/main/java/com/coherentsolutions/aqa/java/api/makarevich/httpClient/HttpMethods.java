@@ -64,7 +64,6 @@ public class HttpMethods {
             int statusCode = response.getStatusLine().getStatusCode();
             String responseBody = EntityUtils.toString(response.getEntity());
             if (statusCode >= HTTP_OK_MIN && statusCode <= HTTP_OK_MAX) {
-                System.out.println(responseBody);
                 return new HttpResponseWrapper(statusCode, responseBody);
             } else {
                 String errorMessage = "Failed to make POST request. Status code: " + statusCode;
