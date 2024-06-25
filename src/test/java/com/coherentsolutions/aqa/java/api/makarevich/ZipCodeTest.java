@@ -1,8 +1,6 @@
 package com.coherentsolutions.aqa.java.api.makarevich;
 
-import com.coherentsolutions.aqa.java.api.makarevich.httpClient.HttpMethods;
-import com.coherentsolutions.aqa.java.api.makarevich.httpClient.HttpMethods.HttpResponseWrapper;
-import com.coherentsolutions.aqa.java.api.makarevich.service.ZipCodeService;
+import com.coherentsolutions.aqa.java.api.makarevich.httpClient.HttpResponseWrapper;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -10,12 +8,12 @@ import java.util.ArrayList;
 
 import static com.coherentsolutions.aqa.java.api.makarevich.configuration.Configuration.API_ZIPCODES_ENDPOINT;
 import static com.coherentsolutions.aqa.java.api.makarevich.configuration.Configuration.API_ZIPCODES_EXPAND_ENDPOINT;
+import static com.coherentsolutions.aqa.java.api.makarevich.constants.Constants.STATUS_CODE_200_OK;
+import static com.coherentsolutions.aqa.java.api.makarevich.constants.Constants.STATUS_CODE_201_CREATED;
 import static java.lang.System.currentTimeMillis;
 import static org.junit.jupiter.api.Assertions.*;
 
-public class ZipCodeTest {
-    private HttpMethods httpMethods = new HttpMethods(); //TODO: to move to the TestBase class
-    private ZipCodeService zipCodeService = new ZipCodeService();
+public class ZipCodeTest extends TestBase {
     /*
     Scenario #1
     Given I am authorized user
@@ -27,8 +25,8 @@ public class ZipCodeTest {
     @Test
     public void testGetZipCodes() throws IOException {
         HttpResponseWrapper response = httpMethods.get(API_ZIPCODES_ENDPOINT);
-        ArrayList<String> arrayList = response.getReponseBodyAsArray();  //TODO:Create the bug: 201 status code instead 200
-        assertEquals(200, response.getStatusCode(), "Expected status code to be 200");
+        ArrayList<String> arrayList = response.getReponseBodyAsArray();
+        assertEquals(STATUS_CODE_200_OK, response.getStatusCode(), "Expected status code to be 200");
         assertFalse(arrayList.isEmpty(), "List of zip codes is empty");
     }
 
@@ -46,8 +44,7 @@ public class ZipCodeTest {
         String zipcode = String.valueOf(currentTimeMillis());
         HttpResponseWrapper response = httpMethods.post(API_ZIPCODES_EXPAND_ENDPOINT, "[\"" + zipcode + "\"]");
         ArrayList<String> arrayList = response.getReponseBodyAsArray();
-        //TODO: Add status codes as variables
-        assertEquals(201, response.getStatusCode(), "Expected status code to be 201");
+        assertEquals(STATUS_CODE_201_CREATED, response.getStatusCode(), "Expected status code to be 201");
         assertTrue(arrayList.contains(zipcode), "Zip code was not added");
     }
 
@@ -60,7 +57,6 @@ public class ZipCodeTest {
     Then I get 201 response code
     And Zip codes from request body are added to available zip codes of application
     And There are no duplications in available zip codes
-    Means there are duplications in the list of zip codes you are trying to add
     */
     @Test
     public void testAddAvailableDuplicatedZipCodes() throws IOException {
@@ -69,7 +65,7 @@ public class ZipCodeTest {
         HttpResponseWrapper response = httpMethods.post(API_ZIPCODES_EXPAND_ENDPOINT,
                 "[\"" + DupZipcode + "\",\"" + UniqueZipcode + "\",\"" + DupZipcode + "\"]");
         ArrayList<String> arrayList = response.getReponseBodyAsArray();
-        assertEquals(201, response.getStatusCode(), "Expected status code to be 201");
+        assertEquals(STATUS_CODE_201_CREATED, response.getStatusCode(), "Expected status code to be 201");
         assertTrue(arrayList.contains(UniqueZipcode), "Unique zip code was not added");
         assertTrue(arrayList.contains(DupZipcode), "Duplicated zip code was not added");
         assertFalse(zipCodeService.isDuplicatedZipcodesPresent(arrayList, DupZipcode), "Duplicated zip codes present");
@@ -84,7 +80,6 @@ public class ZipCodeTest {
     Then I get 201 response code
     And Zip codes from request body are added to available zip codes of application
     And There are no duplications between available zip codes and already used zip codes
-    Means you're trying to add zipcodes that are already present in DB
     */
     @Test
     public void testAddAlreadyExistsZipCodes() throws IOException {
@@ -97,7 +92,7 @@ public class ZipCodeTest {
         HttpResponseWrapper afterResponse = httpMethods.post(API_ZIPCODES_EXPAND_ENDPOINT,
                 "[\"" + existZipCode + "\"]");
         ArrayList<String> afterList = afterResponse.getReponseBodyAsArray();
-        assertEquals(201, afterResponse.getStatusCode(), "Expected status code to be 201");
+        assertEquals(STATUS_CODE_201_CREATED, afterResponse.getStatusCode(), "Expected status code to be 201");
         assertFalse(zipCodeService.isDuplicatedZipcodesPresent(afterList, existZipCode), "Duplicated zip codes present");
     }
 }

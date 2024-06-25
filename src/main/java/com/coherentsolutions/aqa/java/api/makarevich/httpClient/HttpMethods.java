@@ -1,8 +1,6 @@
 package com.coherentsolutions.aqa.java.api.makarevich.httpClient;
 
 import com.coherentsolutions.aqa.java.api.makarevich.service.TokenService;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -12,14 +10,13 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.util.EntityUtils;
 
 import java.io.IOException;
-import java.util.ArrayList;
 
 import static com.coherentsolutions.aqa.java.api.makarevich.configuration.Configuration.API_REQUEST_URI;
+import static com.coherentsolutions.aqa.java.api.makarevich.constants.Constants.HTTP_OK_MAX;
+import static com.coherentsolutions.aqa.java.api.makarevich.constants.Constants.HTTP_OK_MIN;
 
 @Slf4j
 public class HttpMethods {
-    private static final int HTTP_OK_MIN = 200;
-    private static final int HTTP_OK_MAX = 299;
     private final TokenService tokenService;
     private CloseableHttpClient client;
 
@@ -73,36 +70,6 @@ public class HttpMethods {
         } catch (IOException e) {
             log.error("Error executing POST request", e);
             throw e;
-        }
-    }
-
-    public static class HttpResponseWrapper {
-        private final int statusCode;
-        private final String responseBody;
-
-        public HttpResponseWrapper(int statusCode, String responseBody) {
-            this.statusCode = statusCode;
-            this.responseBody = responseBody;
-        }
-
-        public int getStatusCode() {
-            return statusCode;
-        }
-
-        public String getResponseBody() {
-            return responseBody;
-        }
-
-        public ArrayList<String> getReponseBodyAsArray() {
-            ObjectMapper objectMapper = new ObjectMapper();
-            ArrayList<String> arrayList;
-
-            try {
-                arrayList = objectMapper.readValue(responseBody, objectMapper.getTypeFactory().constructCollectionType(ArrayList.class, String.class));
-            } catch (JsonProcessingException e) {
-                throw new RuntimeException(e);
-            }
-            return arrayList;
         }
     }
 }
