@@ -6,11 +6,9 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import static com.coherentsolutions.aqa.java.api.makarevich.configuration.Configuration.API_ZIPCODES_ENDPOINT;
 import static com.coherentsolutions.aqa.java.api.makarevich.configuration.Configuration.API_ZIPCODES_EXPAND_ENDPOINT;
 import static java.lang.System.currentTimeMillis;
 import static org.apache.http.HttpStatus.SC_CREATED;
-import static org.apache.http.HttpStatus.SC_OK;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class ZipCodeTest extends TestBase {
@@ -21,13 +19,10 @@ public class ZipCodeTest extends TestBase {
     Then I get 200 response code
     And I get all available zip codes in the application for now
     */
-
     @Test
-    public void testGetZipCodes() throws IOException {
-        HttpResponseWrapper response = httpClientBase.get(API_ZIPCODES_ENDPOINT);
-        ArrayList<String> arrayList = response.getReponseBodyAsArray();
-        assertEquals(SC_OK, response.getStatusCode(), "Expected status code to be 200");
-        assertFalse(arrayList.isEmpty(), "List of zip codes is empty");
+    public void testGetZipCodes() {
+        ArrayList<String> zipCodes = zipCodeService.getZipCodes();
+        assertFalse(zipCodes.isEmpty(), "List of zip codes is empty");
     }
 
     /*
@@ -38,14 +33,12 @@ public class ZipCodeTest extends TestBase {
     Then I get 201 response code
     And Zip codes from request body are added to available zip codes of application
     */
-
     @Test
-    public void testAddZipCodes() throws IOException {
+    public void testAddZipCodes() {
         String zipcode = String.valueOf(currentTimeMillis());
-        HttpResponseWrapper response = httpClientBase.post(API_ZIPCODES_EXPAND_ENDPOINT, "[\"" + zipcode + "\"]");
-        ArrayList<String> arrayList = response.getReponseBodyAsArray();
-        assertEquals(SC_CREATED, response.getStatusCode(), "Expected status code to be 201");
-        assertTrue(arrayList.contains(zipcode), "Zip code was not added");
+        zipCodeService.addZipCode(zipcode);
+        ArrayList<String> zipCodes = zipCodeService.getZipCodes();
+        assertTrue(zipCodes.contains(zipcode), "Zip code was not added");
     }
 
     /*

@@ -19,6 +19,8 @@ import java.util.List;
 
 import static com.coherentsolutions.aqa.java.api.makarevich.configuration.Configuration.API_REQUEST_URI;
 import static com.coherentsolutions.aqa.java.api.makarevich.configuration.Configuration.API_TOKEN_ENDPOINT;
+import static org.apache.http.HttpStatus.SC_MULTIPLE_CHOICES;
+import static org.apache.http.HttpStatus.SC_OK;
 
 @Slf4j
 public class TokenService {
@@ -66,7 +68,7 @@ public class TokenService {
 
         try (CloseableHttpResponse response = client.execute(httpPost)) {
             int statusCode = response.getStatusLine().getStatusCode();
-            if (statusCode >= 200 && statusCode < 300) {
+            if (statusCode >= SC_OK && statusCode < SC_MULTIPLE_CHOICES) {
                 return EntityUtils.toString(response.getEntity());
             } else {
                 throw new IOException("Failed to get token, status code: " + statusCode);
