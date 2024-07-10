@@ -1,8 +1,10 @@
 package com.coherentsolutions.aqa.java.api.makarevich.service;
 
 import com.coherentsolutions.aqa.java.api.makarevich.httpClient.HttpClient;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -15,18 +17,20 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.coherentsolutions.aqa.java.api.makarevich.configuration.Configuration.API_TOKEN_URL;
+import static com.coherentsolutions.aqa.java.api.makarevich.configuration.Configuration.API_REQUEST_URI;
+import static com.coherentsolutions.aqa.java.api.makarevich.configuration.Configuration.API_TOKEN_ENDPOINT;
+import static org.apache.http.HttpStatus.SC_MULTIPLE_CHOICES;
+import static org.apache.http.HttpStatus.SC_OK;
 
+@Slf4j
 public class TokenService {
     private static TokenService instance;
     private final CloseableHttpClient client;
-    private final String tokenUrl;
     private final ObjectMapper objectMapper;
 
     private TokenService() {
         HttpClient httpClient = HttpClient.getInstance();
         client = httpClient.getHttpClient();
-        tokenUrl = API_TOKEN_URL;
         objectMapper = new ObjectMapper();
     }
 
@@ -37,16 +41,24 @@ public class TokenService {
         return instance;
     }
 
-    public String getWriteToken() throws IOException {
-        return getToken("write");
+    public String getWriteToken() {
+        try {
+            return getToken("write");
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    public String getReadToken() throws IOException {
-        return getToken("read");
+    public String getReadToken() {
+        try {
+            return getToken("read");
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private String getToken(String scope) throws IOException {
-        HttpPost httpPost = new HttpPost(tokenUrl);
+        HttpPost httpPost = new HttpPost(API_REQUEST_URI + API_TOKEN_ENDPOINT);
 
         List<NameValuePair> params = new ArrayList<>();
         params.add(new BasicNameValuePair("grant_type", "client_credentials"));
@@ -56,7 +68,7 @@ public class TokenService {
 
         try (CloseableHttpResponse response = client.execute(httpPost)) {
             int statusCode = response.getStatusLine().getStatusCode();
-            if (statusCode >= 200 && statusCode < 300) {
+            if (statusCode >= SC_OK && statusCode < SC_MULTIPLE_CHOICES) {
                 return EntityUtils.toString(response.getEntity());
             } else {
                 throw new IOException("Failed to get token, status code: " + statusCode);
@@ -64,8 +76,14 @@ public class TokenService {
         }
     }
 
-    public String extractToken(String responseBody) throws IOException {
-        JsonNode jsonNode = objectMapper.readTree(responseBody);
+    public String extractToken(String responseBody) {
+        JsonNode jsonNode;
+        try {
+            jsonNode = objectMapper.readTree(responseBody);
+        } catch (JsonProcessingException e) {
+            log.error("Failed to extract token", e);
+            throw new RuntimeException("Failed to extract token", e);
+        }
         return jsonNode.get("access_token").asText();
     }
 }
