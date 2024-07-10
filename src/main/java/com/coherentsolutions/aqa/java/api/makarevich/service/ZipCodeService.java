@@ -35,7 +35,7 @@ public class ZipCodeService {
         }
     }
 
-    public HttpResponseWrapper addZipCode(String zipCode) {
+    public HttpResponseWrapper addZipCode(String... zipCode) {
         try {
             String jsonArray = objectMapper.writeValueAsString(List.of(zipCode));
             HttpResponseWrapper response = httpClientBase.post(API_ZIPCODES_EXPAND_ENDPOINT, jsonArray);
@@ -49,7 +49,6 @@ public class ZipCodeService {
             throw new RuntimeException(e);
         }
     }
-
 
     public boolean isDuplicatedZipcodesPresent(ArrayList<String> list, String zipcode) {
         int count = 0;
