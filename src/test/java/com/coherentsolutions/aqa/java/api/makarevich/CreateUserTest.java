@@ -10,7 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class CreateUserTest extends TestBase {
     @Test
-    public void createUserTest() {
+    public void createUserWithAllFieldsTest() {
         //Add new zip code to available zip codes
         String zipcode = zipCodeService.getRandomZipCode();
         zipCodeService.addZipCode(zipcode);
@@ -26,5 +26,13 @@ public class CreateUserTest extends TestBase {
         //Verify specified zip code is removed from available zip codes
         ArrayList<String> zipCodesAfter = zipCodeService.getZipCodes();
         assertFalse(zipCodesAfter.contains(zipcode), "Zip code is not removed");
+    }
+
+    @Test
+    public void createUserWithRequiredFieldsTest() {
+        User user = userService.createRandomUser();
+        userService.createUser(user);
+        userService.getUsers();
+        assertTrue(userService.isUserAdded(user), "User is not added");
     }
 }

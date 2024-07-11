@@ -8,6 +8,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.javafaker.Faker;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -17,6 +18,7 @@ import static com.coherentsolutions.aqa.java.api.makarevich.configuration.Config
 import static org.apache.http.HttpStatus.SC_CREATED;
 import static org.apache.http.HttpStatus.SC_OK;
 
+@Slf4j
 public class UserService {
     private HttpClientBase httpClientBase;
     private ObjectMapper objectMapper;
@@ -62,16 +64,36 @@ public class UserService {
             });
             return userList.contains(user);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("", e);
             return false;
         }
     }
 
     public User createRandomUser(String zipcode) {
+        return generateUser(zipcode);
+    }
+
+    public User createRandomUser() {
+        return generateUser();
+    }
+
+    private User generateUser(Integer age, String name, UserSex sex, String zipcode) {
+        if (zipcode != null) {
+            return new User(age, name, sex, zipcode);
+        } else {
+            return new User(age, name, sex);
+        }
+    }
+
+    private User generateUser(String zipcode) {
         int age = faker.number().numberBetween(10, 100);
         String name = faker.name().fullName();
         UserSex sex = getRandomUserSex();
-        return new User(age, name, sex, zipcode);
+        return generateUser(age, name, sex, zipcode);
+    }
+
+    private User generateUser() {
+        return generateUser(null);
     }
 
     private UserSex getRandomUserSex() {
