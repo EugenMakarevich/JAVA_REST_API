@@ -4,7 +4,6 @@ import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 
-import static java.lang.System.currentTimeMillis;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -17,7 +16,7 @@ public class ZipCodeTest extends TestBase {
 
     @Test
     public void addZipCodeTest() {
-        String zipcode = String.valueOf(currentTimeMillis());
+        String zipcode = zipCodeService.getRandomZipCode();
         zipCodeService.addZipCode(zipcode);
         ArrayList<String> zipCodes = zipCodeService.getZipCodes();
         assertTrue(zipCodes.contains(zipcode), "Zip code was not added");
@@ -25,8 +24,8 @@ public class ZipCodeTest extends TestBase {
 
     @Test
     public void addAvailableDuplicatedZipCodesTest() {
-        String dupZipcode = String.valueOf(currentTimeMillis());
-        String uniqueZipcode = String.valueOf(currentTimeMillis() + 1);
+        String dupZipcode = zipCodeService.getRandomZipCode();
+        String uniqueZipcode = zipCodeService.getRandomZipCode();
         zipCodeService.addZipCode(dupZipcode, uniqueZipcode, dupZipcode);
         ArrayList<String> zipCodes = zipCodeService.getZipCodes();
         assertTrue(zipCodes.contains(uniqueZipcode), "Unique zip code was not added");
@@ -36,7 +35,7 @@ public class ZipCodeTest extends TestBase {
 
     @Test
     public void addAlreadyExistsZipCodesTest() {
-        String existZipCode = String.valueOf(currentTimeMillis());
+        String existZipCode = zipCodeService.getRandomZipCode();
         zipCodeService.addZipCode(existZipCode);
         ArrayList<String> beforeZipCodes = zipCodeService.getZipCodes();
         assertTrue(beforeZipCodes.contains(existZipCode), "Zip code was not added");

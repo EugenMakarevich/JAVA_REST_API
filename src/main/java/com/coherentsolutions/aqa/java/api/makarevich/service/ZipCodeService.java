@@ -4,6 +4,7 @@ import com.coherentsolutions.aqa.java.api.makarevich.httpClient.HttpClientBase;
 import com.coherentsolutions.aqa.java.api.makarevich.httpClient.HttpResponseWrapper;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.javafaker.Faker;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -13,14 +14,15 @@ import static com.coherentsolutions.aqa.java.api.makarevich.configuration.Config
 import static com.coherentsolutions.aqa.java.api.makarevich.configuration.Configuration.API_ZIPCODES_EXPAND_ENDPOINT;
 import static org.apache.http.HttpStatus.SC_CREATED;
 
-
 public class ZipCodeService {
     private HttpClientBase httpClientBase;
     private ObjectMapper objectMapper;
+    private Faker faker;
 
     public ZipCodeService() {
         httpClientBase = new HttpClientBase();
         objectMapper = new ObjectMapper();
+        faker = new Faker();
     }
 
     public ArrayList<String> getZipCodes() {
@@ -61,5 +63,9 @@ public class ZipCodeService {
             }
         }
         return false;
+    }
+
+    public String getRandomZipCode() {
+        return faker.address().zipCode();
     }
 }
