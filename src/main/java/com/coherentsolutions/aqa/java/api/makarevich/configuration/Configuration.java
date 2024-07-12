@@ -12,4 +12,5 @@ public class Configuration {
     public static final String API_TOKEN_ENDPOINT = ConfigUtils.getProperty("api.token.endpoint");
     public static final String API_ZIPCODES_ENDPOINT = ConfigUtils.getProperty("api.zipcodes.endpoint");
     public static final String API_ZIPCODES_EXPAND_ENDPOINT = ConfigUtils.getProperty("api.zipcodes.expand.endpoint");
+    public static final String API_USER_ENDPOINT = ConfigUtils.getProperty("api.users.endpoint");
 }
