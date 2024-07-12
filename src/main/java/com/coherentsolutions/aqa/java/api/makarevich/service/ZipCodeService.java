@@ -4,7 +4,6 @@ import com.coherentsolutions.aqa.java.api.makarevich.httpClient.HttpClientBase;
 import com.coherentsolutions.aqa.java.api.makarevich.httpClient.HttpResponseWrapper;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.javafaker.Faker;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -18,12 +17,10 @@ import static org.apache.http.HttpStatus.SC_OK;
 public class ZipCodeService {
     private HttpClientBase httpClientBase;
     private ObjectMapper objectMapper;
-    private Faker faker;
 
     public ZipCodeService() {
         httpClientBase = new HttpClientBase();
         objectMapper = new ObjectMapper();
-        faker = new Faker();
     }
 
     public ArrayList<String> getZipCodes() {
@@ -51,22 +48,5 @@ public class ZipCodeService {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    public boolean isDuplicatedZipcodesPresent(ArrayList<String> list, String zipcode) {
-        int count = 0;
-        for (String z : list) {
-            if (z.equals(zipcode)) {
-                count++;
-                if (count > 1) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
-    public String getRandomZipCode() {
-        return faker.address().zipCode();
     }
 }

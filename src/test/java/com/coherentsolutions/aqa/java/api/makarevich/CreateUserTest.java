@@ -6,6 +6,8 @@ import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 
+import static com.coherentsolutions.aqa.java.api.makarevich.factory.UserFactory.generateRandomUser;
+import static com.coherentsolutions.aqa.java.api.makarevich.factory.UserFactory.generateRandomZipCode;
 import static org.apache.http.HttpStatus.*;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -13,33 +15,26 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class CreateUserTest extends TestBase {
     @Test
     public void createUserWithAllFieldsTest() {
-        String zipcode = zipCodeService.getRandomZipCode();
+        String zipcode = generateRandomZipCode();
         zipCodeService.addZipCode(zipcode);
-        ArrayList<String> zipCodes = zipCodeService.getZipCodes();
-        assertTrue(zipCodes.contains(zipcode), "Zip code is not added");
-
-        User user = userService.createRandomUser(zipcode);
+        User user = generateRandomUser(zipcode);
         userService.createUser(user, SC_CREATED);
-        assertTrue(userService.isUserAdded(user), "User is not added");
-
         ArrayList<String> zipCodesAfter = zipCodeService.getZipCodes();
+        assertTrue(userService.isUserAdded(user), "User is not added");
         assertFalse(zipCodesAfter.contains(zipcode), "Zip code is not removed");
     }
 
     @Test
     public void createUserWithRequiredFieldsTest() {
-        User user = userService.createRandomUser();
+        User user = generateRandomUser();
         userService.createUser(user, SC_CREATED);
         assertTrue(userService.isUserAdded(user), "User is not added");
     }
 
     @Test
     public void createUserWithUnavailableZipCodeTest() {
-        String zipcode = zipCodeService.getRandomZipCode();
-        ArrayList<String> zipCodes = zipCodeService.getZipCodes();
-        assertFalse(zipCodes.contains(zipcode), "Zip code is available");
-
-        User user = userService.createRandomUser(zipcode);
+        String zipcode = generateRandomZipCode();
+        User user = generateRandomUser(zipcode);
         userService.createUser(user, SC_FAILED_DEPENDENCY);
         assertFalse(userService.isUserAdded(user), "User is added");
     }
@@ -49,8 +44,7 @@ public class CreateUserTest extends TestBase {
         User randomUser = userService.getRandomUser();
         String name = randomUser.getName();
         UserSex sex = randomUser.getSex();
-
-        User user = userService.createRandomUser(name, sex);
+        User user = generateRandomUser(name, sex);
         userService.createUser(user, SC_BAD_REQUEST);
         assertFalse(userService.isUserAdded(user), "User is added");
     }

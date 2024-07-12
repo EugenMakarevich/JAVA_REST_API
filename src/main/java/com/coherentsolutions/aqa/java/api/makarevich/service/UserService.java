@@ -1,13 +1,11 @@
 package com.coherentsolutions.aqa.java.api.makarevich.service;
 
-import com.coherentsolutions.aqa.java.api.makarevich.constants.UserSex;
 import com.coherentsolutions.aqa.java.api.makarevich.httpClient.HttpClientBase;
 import com.coherentsolutions.aqa.java.api.makarevich.httpClient.HttpResponseWrapper;
 import com.coherentsolutions.aqa.java.api.makarevich.model.User;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.javafaker.Faker;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
@@ -21,12 +19,10 @@ import static org.apache.http.HttpStatus.SC_OK;
 public class UserService {
     private HttpClientBase httpClientBase;
     private ObjectMapper objectMapper;
-    private Faker faker;
 
     public UserService() {
         httpClientBase = new HttpClientBase();
         objectMapper = new ObjectMapper();
-        faker = new Faker();
     }
 
     public HttpResponseWrapper createUser(User user, int statusCode) {
@@ -62,7 +58,7 @@ public class UserService {
             ArrayList<User> userList = objectMapper.readValue(users, new TypeReference<ArrayList<User>>() {
             });
             if (userList.isEmpty()) {
-                log.info("User list is empty.");
+                log.info("User list is empty");
                 return null;
             }
             return userList.get(new Random().nextInt(userList.size()));
@@ -70,18 +66,6 @@ public class UserService {
             log.error("Failed to get random user", e);
             return null;
         }
-    }
-
-    public User createRandomUser(String name, UserSex sex) {
-        return generateUser(name, sex);
-    }
-
-    public User createRandomUser(String zipcode) {
-        return generateUser(zipcode);
-    }
-
-    public User createRandomUser() {
-        return generateUser();
     }
 
     private String getUsers() {
@@ -94,35 +78,5 @@ public class UserService {
         } catch (IOException e) {
             throw new RuntimeException("Failed to get zip codes", e);
         }
-    }
-
-    private User generateUser(Integer age, String name, UserSex sex, String zipcode) {
-        if (zipcode != null) {
-            return new User(age, name, sex, zipcode);
-        } else {
-            return new User(age, name, sex);
-        }
-    }
-
-    private User generateUser(String name, UserSex sex) {
-        int age = faker.number().numberBetween(10, 100);
-        return new User(age, name, sex);
-    }
-
-    private User generateUser(String zipcode) {
-        int age = faker.number().numberBetween(10, 100);
-        String name = faker.name().fullName();
-        UserSex sex = getRandomUserSex();
-        return generateUser(age, name, sex, zipcode);
-    }
-
-    private User generateUser() {
-        return generateUser(null);
-    }
-
-    private UserSex getRandomUserSex() {
-        UserSex[] values = UserSex.values();
-        int index = new Random().nextInt(values.length);
-        return values[index];
     }
 }
