@@ -13,6 +13,7 @@ import java.util.List;
 import static com.coherentsolutions.aqa.java.api.makarevich.configuration.Configuration.API_ZIPCODES_ENDPOINT;
 import static com.coherentsolutions.aqa.java.api.makarevich.configuration.Configuration.API_ZIPCODES_EXPAND_ENDPOINT;
 import static org.apache.http.HttpStatus.SC_CREATED;
+import static org.apache.http.HttpStatus.SC_OK;
 
 public class ZipCodeService {
     private HttpClientBase httpClientBase;
@@ -28,7 +29,7 @@ public class ZipCodeService {
     public ArrayList<String> getZipCodes() {
         try {
             HttpResponseWrapper response = httpClientBase.get(API_ZIPCODES_ENDPOINT);
-            if (response.getStatusCode() != SC_CREATED) { //For testing purpose, correct exp = 200
+            if (response.getStatusCode() != SC_OK) {
                 throw new RuntimeException("Unexpected response status: " + response.getStatusCode());
             }
             return response.getReponseBodyAsArray();
