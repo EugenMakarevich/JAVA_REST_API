@@ -13,4 +13,5 @@ public class Configuration {
     public static final String API_ZIPCODES_ENDPOINT = ConfigUtils.getProperty("api.zipcodes.endpoint");
     public static final String API_ZIPCODES_EXPAND_ENDPOINT = ConfigUtils.getProperty("api.zipcodes.expand.endpoint");
     public static final String API_USER_ENDPOINT = ConfigUtils.getProperty("api.users.endpoint");
+    public static final String API_USER_OLDER_THAN_ENDPOINT = "/users?olderThan=80";
 }
