@@ -11,21 +11,21 @@ public class UserFactory {
     private static final Faker faker = new Faker();
 
     public static User generateRandomUser() {
-        int age = faker.number().numberBetween(10, 100);
-        String name = faker.name().fullName();
+        int age = generateRandomAge();
+        String name = generateRandomName();
         UserSex sex = getRandomUserSex();
         return new User(age, name, sex);
     }
 
     public static User generateRandomUser(String zipCode) {
-        int age = faker.number().numberBetween(10, 100);
-        String name = faker.name().fullName();
+        int age = generateRandomAge();
+        String name = generateRandomName();
         UserSex sex = getRandomUserSex();
         return new User(age, name, sex, zipCode);
     }
 
     public static User generateRandomUser(String name, UserSex sex) {
-        int age = faker.number().numberBetween(10, 100);
+        int age = generateRandomAge();
         return new User(age, name, sex);
     }
 
@@ -46,7 +46,15 @@ public class UserFactory {
         return faker.address().zipCode();
     }
 
-    private static UserSex getRandomUserSex() {
+    public static String generateRandomName() {
+        return faker.name().fullName();
+    }
+
+    public static Integer generateRandomAge() {
+        return faker.number().numberBetween(10, 90);
+    }
+
+    public static UserSex getRandomUserSex() {
         return faker.options().option(UserSex.class);
     }
 }

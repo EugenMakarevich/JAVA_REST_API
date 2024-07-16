@@ -1,5 +1,6 @@
 package com.coherentsolutions.aqa.java.api.makarevich.service;
 
+import com.coherentsolutions.aqa.java.api.makarevich.constants.UserSex;
 import com.coherentsolutions.aqa.java.api.makarevich.httpClient.HttpClientBase;
 import com.coherentsolutions.aqa.java.api.makarevich.httpClient.HttpResponseWrapper;
 import com.coherentsolutions.aqa.java.api.makarevich.model.User;
@@ -16,7 +17,6 @@ import java.util.Map;
 import java.util.Random;
 
 import static com.coherentsolutions.aqa.java.api.makarevich.configuration.Configuration.API_USER_ENDPOINT;
-import static com.coherentsolutions.aqa.java.api.makarevich.configuration.Configuration.API_USER_OLDER_THAN_ENDPOINT;
 import static org.apache.http.HttpStatus.SC_OK;
 
 @Slf4j
@@ -27,6 +27,50 @@ public class UserService {
     public UserService() {
         httpClientBase = new HttpClientBase();
         objectMapper = new ObjectMapper();
+    }
+
+    public ArrayList<User> getUsers(Integer olderThan, String sex, Integer youngerThan) {
+        try {
+            Map<String, String> queryParams = queryParamsConstructor(olderThan, sex, youngerThan);
+
+            HttpResponseWrapper response = httpClientBase.get(API_USER_ENDPOINT, queryParams);
+            if (response.getStatusCode() != SC_OK) {
+                throw new RuntimeException("Unexpected response status: " + response.getStatusCode());
+            }
+            return objectMapper.readValue(response.getResponseBody(), new TypeReference<ArrayList<User>>() {
+            });
+        } catch (IOException | URISyntaxException e) {
+            throw new RuntimeException("Failed to get users", e);
+        }
+    }
+
+    public ArrayList<User> getUsers() {
+        return getUsers(null, null, null);
+    }
+
+    public ArrayList<User> getUsersOlderThan(Integer olderThan) {
+        return getUsers(olderThan, null, null);
+    }
+
+    public ArrayList<User> getUsersYoungerThan(Integer youngerThan) {
+        return getUsers(null, null, youngerThan);
+    }
+
+    public ArrayList<User> getUsersBySex(UserSex sex) {
+        return getUsers(null, String.valueOf(sex), null);
+    }
+
+    public User getRandomUser() {
+        ArrayList<User> users = getUsers();
+        if (users.isEmpty()) {
+            log.info("User list is empty");
+            return null;
+        }
+        return users.get(new Random().nextInt(users.size()));
+    }
+
+    public boolean isUserAdded(User user) {
+        return getUsers().contains(user);
     }
 
     public HttpResponseWrapper createUser(User user, int statusCode) {
@@ -44,68 +88,17 @@ public class UserService {
         }
     }
 
-    public boolean isUserAdded(User user) {
-        return getUsers().contains(user);
-    }
-
-    public User getRandomUser() {
-        ArrayList<User> users = getUsers();
-        if (users.isEmpty()) {
-            log.info("User list is empty");
-            return null;
+    private Map<String, String> queryParamsConstructor(Integer olderThan, String sex, Integer youngerThan) {
+        Map<String, String> queryParams = new HashMap<>();
+        if (olderThan != null) {
+            queryParams.put("olderThan", String.valueOf(olderThan));
         }
-        return users.get(new Random().nextInt(users.size()));
-    }
-
-    public ArrayList<User> getUsers() {
-        try {
-            HttpResponseWrapper response = httpClientBase.get(API_USER_ENDPOINT);
-            if (response.getStatusCode() != SC_OK) {
-                throw new RuntimeException("Unexpected response status: " + response.getStatusCode());
-            }
-            return objectMapper.readValue(response.getResponseBody(), new TypeReference<ArrayList<User>>() {
-            });
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to get zip codes", e);
+        if (sex != null) {
+            queryParams.put("sex", sex);
         }
-    }
-
-    public ArrayList<User> getUsers(Integer olderThan, String sex, Integer youngerThan) {
-        try {
-            // Construct the query parameters map
-            Map<String, String> queryParams = new HashMap<>();
-            if (olderThan != null) {
-                queryParams.put("olderThan", String.valueOf(olderThan));
-            }
-            if (sex != null) {
-                queryParams.put("sex", sex);
-            }
-            if (youngerThan != null) {
-                queryParams.put("youngerThan", String.valueOf(youngerThan));
-            }
-
-            // Call the get method with the parameters
-            HttpResponseWrapper response = httpClientBase.get(API_USER_ENDPOINT, queryParams);
-            if (response.getStatusCode() != SC_OK) {
-                throw new RuntimeException("Unexpected response status: " + response.getStatusCode());
-            }
-            return objectMapper.readValue(response.getResponseBody(), new TypeReference<ArrayList<User>>() {
-            });
-        } catch (IOException | URISyntaxException e) {
-            throw new RuntimeException("Failed to get users", e);
+        if (youngerThan != null) {
+            queryParams.put("youngerThan", String.valueOf(youngerThan));
         }
-    }
-
-    public ArrayList<User> getUsersOlderThan() {
-        try {
-            HttpResponseWrapper response = httpClientBase.get(API_USER_OLDER_THAN_ENDPOINT);
-            if (response.getStatusCode() != SC_OK) {
-                throw new RuntimeException("Unexpected response status: " + response.getStatusCode());
-            }
-            return objectMapper.readValue(response.getResponseBody(), new TypeReference<ArrayList<User>>() {
-            });
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to get zip codes", e);
-        }
+        return queryParams;
     }
 }
