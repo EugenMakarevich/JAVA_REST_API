@@ -6,6 +6,9 @@ import com.github.javafaker.Faker;
 
 import java.util.ArrayList;
 
+import static com.coherentsolutions.aqa.java.api.makarevich.constants.UserSex.FEMALE;
+import static com.coherentsolutions.aqa.java.api.makarevich.constants.UserSex.MALE;
+
 public class UserFactory {
 
     private static final Faker faker = new Faker();
@@ -22,6 +25,18 @@ public class UserFactory {
         String name = generateRandomName();
         UserSex sex = getRandomUserSex();
         return new User(age, name, sex, zipCode);
+    }
+
+    public static User generateRandomUser(int age) {
+        String name = generateRandomName();
+        UserSex sex = getRandomUserSex();
+        return new User(age, name, sex);
+    }
+
+    public static User generateRandomUser(UserSex sex) {
+        int age = generateRandomAge();
+        String name = generateRandomName();
+        return new User(age, name, sex);
     }
 
     public static User generateRandomUser(String name, UserSex sex) {
@@ -56,5 +71,13 @@ public class UserFactory {
 
     public static UserSex getRandomUserSex() {
         return faker.options().option(UserSex.class);
+    }
+
+    public static UserSex getOppositeUserSex(UserSex sex) {
+        if (sex == MALE) {
+            return FEMALE;
+        } else {
+            return MALE;
+        }
     }
 }

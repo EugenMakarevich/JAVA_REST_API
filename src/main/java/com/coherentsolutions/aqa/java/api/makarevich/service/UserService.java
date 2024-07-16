@@ -17,6 +17,7 @@ import java.util.Map;
 import java.util.Random;
 
 import static com.coherentsolutions.aqa.java.api.makarevich.configuration.Configuration.API_USER_ENDPOINT;
+import static org.apache.http.HttpStatus.SC_CREATED;
 import static org.apache.http.HttpStatus.SC_OK;
 
 @Slf4j
@@ -71,6 +72,21 @@ public class UserService {
 
     public boolean isUserAdded(User user) {
         return getUsers().contains(user);
+    }
+
+    public HttpResponseWrapper createUser(User user) {
+        try {
+            String userJson = objectMapper.writeValueAsString(user);
+            HttpResponseWrapper response = httpClientBase.post(API_USER_ENDPOINT, userJson);
+            if (response.getStatusCode() != SC_CREATED) {
+                throw new RuntimeException("Unexpected response status: " + response.getStatusCode());
+            }
+            return response;
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException("Failed to convert zip code to JSON", e);
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to send POST request", e);
+        }
     }
 
     public HttpResponseWrapper createUser(User user, int statusCode) {

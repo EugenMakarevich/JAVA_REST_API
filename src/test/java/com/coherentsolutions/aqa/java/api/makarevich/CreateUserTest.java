@@ -8,7 +8,8 @@ import java.util.ArrayList;
 
 import static com.coherentsolutions.aqa.java.api.makarevich.factory.UserFactory.generateRandomUser;
 import static com.coherentsolutions.aqa.java.api.makarevich.factory.UserFactory.generateRandomZipCode;
-import static org.apache.http.HttpStatus.*;
+import static org.apache.http.HttpStatus.SC_BAD_REQUEST;
+import static org.apache.http.HttpStatus.SC_FAILED_DEPENDENCY;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -18,7 +19,7 @@ public class CreateUserTest extends TestBase {
         String zipcode = generateRandomZipCode();
         zipCodeService.addZipCode(zipcode);
         User user = generateRandomUser(zipcode);
-        userService.createUser(user, SC_CREATED);
+        userService.createUser(user);
         ArrayList<String> zipCodesAfter = zipCodeService.getZipCodes();
         assertTrue(userService.isUserAdded(user), "User is not added");
         assertFalse(zipCodesAfter.contains(zipcode), "Zip code is not removed");
@@ -27,7 +28,7 @@ public class CreateUserTest extends TestBase {
     @Test
     public void createUserWithRequiredFieldsTest() {
         User user = generateRandomUser();
-        userService.createUser(user, SC_CREATED);
+        userService.createUser(user);
         assertTrue(userService.isUserAdded(user), "User is not added");
     }
 
