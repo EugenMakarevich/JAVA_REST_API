@@ -104,6 +104,21 @@ public class UserService {
         }
     }
 
+    public HttpResponseWrapper updateUser(ArrayList<User> users, int statusCode) {
+        try {
+            String userJson = objectMapper.writeValueAsString(users);
+            HttpResponseWrapper response = httpClientBase.put(API_USER_ENDPOINT, userJson);
+            if (response.getStatusCode() != statusCode) {
+                throw new RuntimeException("Unexpected response status: " + response.getStatusCode());
+            }
+            return response;
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException("Failed to convert zip code to JSON", e);
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to send POST request", e);
+        }
+    }
+
     private Map<String, String> queryParamsConstructor(Integer olderThan, String sex, Integer youngerThan) {
         Map<String, String> queryParams = new HashMap<>();
         if (olderThan != null) {

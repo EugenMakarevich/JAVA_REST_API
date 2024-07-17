@@ -7,7 +7,7 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @RequiredArgsConstructor
-public class User {
+public class User implements Cloneable {
     @NonNull
     private int age;
     @NonNull
@@ -15,4 +15,15 @@ public class User {
     @NonNull
     private UserSex sex;
     private String zipCode;
+
+    @Override
+    public User clone() {
+        try {
+            User clone = (User) super.clone();
+            // TODO: copy mutable state here, so the clone can't change the internals of the original
+            return clone;
+        } catch (CloneNotSupportedException e) {
+            throw new AssertionError();
+        }
+    }
 }
