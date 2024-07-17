@@ -11,29 +11,14 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class UpdateUserTest extends TestBase {
-    //What if pack to users in ArrayList<User>
-    //And then turn them into an json?
     @Test
     public void updateUserTest() {
-        //Add new user to the DB (old user)
-        User user = generateRandomUser();
-        userService.createUser(user);
-        System.out.println(user);
-        //Create new user, based on the old one
-        User updUser = user.clone();
-        updUser.setName("Updated User");
-        //Put two users into ArrayList<User>
-        ArrayList<User> users = new ArrayList<>();
-        users.add(updUser);
-        users.add(user);
-        System.out.println(users);
-        ArrayList<User> allUsers = userService.getUsers();
-        System.out.println(allUsers)
-        //Update user
-        userService.updateUser(users, SC_OK);
-        ArrayList<User> allUsers = userService.getUsers();
-        System.out.println(allUsers);
-        assertTrue(allUsers.contains(updUser), "User is not present");
-        assertFalse(allUsers.contains(user), "User is present");
+        User userToChange = generateRandomUser();
+        userService.createUser(userToChange);
+        User userNewValues = userService.changeRandomUserValue(userToChange);
+        userService.updateUser(userNewValues, userToChange, SC_OK);
+        ArrayList<User> users = userService.getUsers();
+        assertTrue(users.contains(userNewValues), "User is not present");
+        assertFalse(users.contains(userToChange), "User is present");
     }
 }
