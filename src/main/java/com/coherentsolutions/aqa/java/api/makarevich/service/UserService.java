@@ -139,6 +139,13 @@ public class UserService {
         return modifiedUser;
     }
 
+    public User changeUserZipCode(User user) {
+        User modifiedUser = user.clone();
+        String zipCode = generateRandomZipCode();
+        modifiedUser.setZipCode(zipCode);
+        return modifiedUser;
+    }
+
     private String generateUserUpdateJson(User userWithNewValues, User userToBeChanged) {
         try {
             Object combined = new Object() {

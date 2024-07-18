@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 
 import static com.coherentsolutions.aqa.java.api.makarevich.factory.UserFactory.generateRandomUser;
+import static org.apache.http.HttpStatus.SC_FAILED_DEPENDENCY;
 import static org.apache.http.HttpStatus.SC_OK;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -20,5 +21,16 @@ public class UpdateUserTest extends TestBase {
         ArrayList<User> users = userService.getUsers();
         assertTrue(users.contains(userNewValues), "User is not present");
         assertFalse(users.contains(userToChange), "User is present");
+    }
+
+    @Test
+    public void updateUserWithUnavailableZipCode() {
+        User userToChange = generateRandomUser();
+        userService.createUser(userToChange);
+        User userNewValues = userService.changeUserZipCode(userToChange);
+        userService.updateUser(userNewValues, userToChange, SC_FAILED_DEPENDENCY);
+        ArrayList<User> users = userService.getUsers();
+        assertTrue(users.contains(userToChange), "User is not present"); //TODO: Report a bug
+        assertFalse(users.contains(userNewValues), "User is present");
     }
 }
