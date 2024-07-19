@@ -1,20 +1,24 @@
 package com.coherentsolutions.aqa.java.api.makarevich.model;
 
 import com.coherentsolutions.aqa.java.api.makarevich.constants.UserSex;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@RequiredArgsConstructor
 public class User implements Cloneable {
-    @NonNull
-    private int age;
-    @NonNull
+    private Integer age;
     private String name;
-    @NonNull
     private UserSex sex;
     private String zipCode;
+
+    public User(Integer age, String name, UserSex sex) {
+        this.age = age;
+        this.name = name;
+        this.sex = sex;
+    }
 
     @Override
     public User clone() {

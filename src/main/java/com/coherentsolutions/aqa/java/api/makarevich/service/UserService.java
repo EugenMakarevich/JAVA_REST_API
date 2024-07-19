@@ -146,6 +146,28 @@ public class UserService {
         return modifiedUser;
     }
 
+    public User createUserWithoutRequiredField(User user) {
+        User newUser = new User();
+        int attributeToChange = new Random().nextInt(3);
+        switch (attributeToChange) {
+            case 0:
+                newUser.setAge(user.getAge());
+                newUser.setName(user.getName());
+                break;
+            case 1:
+                newUser.setAge(user.getAge());
+                newUser.setSex(user.getSex());
+                break;
+            case 2:
+                newUser.setName(user.getName());
+                newUser.setSex(user.getSex());
+                break;
+            default:
+                throw new IllegalStateException("Unexpected value: " + attributeToChange);
+        }
+        return newUser;
+    }
+
     private String generateUserUpdateJson(User userWithNewValues, User userToBeChanged) {
         try {
             Object combined = new Object() {
