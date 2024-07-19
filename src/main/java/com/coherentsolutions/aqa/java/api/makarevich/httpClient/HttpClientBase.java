@@ -2,10 +2,7 @@ package com.coherentsolutions.aqa.java.api.makarevich.httpClient;
 
 import com.coherentsolutions.aqa.java.api.makarevich.service.TokenService;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.client.methods.*;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.util.EntityUtils;
@@ -66,6 +63,15 @@ public class HttpClientBase {
         httpPost.setHeader("Content-type", "application/json");
         httpPost.setEntity(new StringEntity(json));
         return getResponse(httpPost);
+    }
+
+    public HttpResponseWrapper put(String endpoint, String json) throws IOException {
+        String token = tokenService.extractToken(tokenService.getWriteToken());
+        HttpPut httpPut = new HttpPut(API_REQUEST_URI + endpoint);
+        httpPut.addHeader("Authorization", "Bearer " + token);
+        httpPut.setHeader("Content-type", "application/json");
+        httpPut.setEntity(new StringEntity(json));
+        return getResponse(httpPut);
     }
 
     private HttpResponseWrapper getResponse(HttpUriRequest request) throws IOException {

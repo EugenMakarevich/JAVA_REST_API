@@ -17,6 +17,7 @@ import java.util.Map;
 import java.util.Random;
 
 import static com.coherentsolutions.aqa.java.api.makarevich.configuration.Configuration.API_USER_ENDPOINT;
+import static com.coherentsolutions.aqa.java.api.makarevich.factory.UserFactory.*;
 import static org.apache.http.HttpStatus.SC_CREATED;
 import static org.apache.http.HttpStatus.SC_OK;
 
@@ -101,6 +102,82 @@ public class UserService {
             throw new RuntimeException("Failed to convert zip code to JSON", e);
         } catch (IOException e) {
             throw new RuntimeException("Failed to send POST request", e);
+        }
+    }
+
+    public HttpResponseWrapper updateUser(User userNewValues, User userToChange, int statusCode) {
+        try {
+            String userJson = generateUserUpdateJson(userNewValues, userToChange);
+            HttpResponseWrapper response = httpClientBase.put(API_USER_ENDPOINT, userJson);
+            if (response.getStatusCode() != statusCode) {
+                throw new RuntimeException("Unexpected response status: " + response.getStatusCode());
+            }
+            return response;
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException("Failed to convert to JSON", e);
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to send PUT request", e);
+        }
+    }
+
+    public User changeRandomUserValue(User user) {
+        User modifiedUser = user.clone();
+        int attributeToChange = new Random().nextInt(3);
+        switch (attributeToChange) {
+            case 0:
+                modifiedUser.setAge(generateRandomAge());
+                break;
+            case 1:
+                modifiedUser.setName(generateRandomName());
+                break;
+            case 2:
+                modifiedUser.setSex(getOppositeUserSex(user.getSex()));
+                break;
+            default:
+                throw new IllegalStateException("Unexpected value: " + attributeToChange);
+        }
+        return modifiedUser;
+    }
+
+    public User changeUserZipCode(User user) {
+        User modifiedUser = user.clone();
+        String zipCode = generateRandomZipCode();
+        modifiedUser.setZipCode(zipCode);
+        return modifiedUser;
+    }
+
+    public User createUserWithoutRequiredField(User user) {
+        User newUser = new User();
+        int attributeToChange = new Random().nextInt(3);
+        switch (attributeToChange) {
+            case 0:
+                newUser.setAge(user.getAge());
+                newUser.setName(user.getName());
+                break;
+            case 1:
+                newUser.setAge(user.getAge());
+                newUser.setSex(user.getSex());
+                break;
+            case 2:
+                newUser.setName(user.getName());
+                newUser.setSex(user.getSex());
+                break;
+            default:
+                throw new IllegalStateException("Unexpected value: " + attributeToChange);
+        }
+        return newUser;
+    }
+
+    private String generateUserUpdateJson(User userWithNewValues, User userToBeChanged) {
+        try {
+            Object combined = new Object() {
+                public User userNewValues = userWithNewValues;
+                public User userToChange = userToBeChanged;
+            };
+            return objectMapper.writeValueAsString(combined);
+        } catch (JsonProcessingException e) {
+            log.error("Failed to convert to JSON", e);
+            return null;
         }
     }
 
