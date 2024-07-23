@@ -49,7 +49,7 @@ public class HttpClientBase {
         }
 
         // Construct the full URI
-        URI uri = new URI(API_REQUEST_URI + endpoint + "?" + queryString.toString());
+        URI uri = new URI(API_REQUEST_URI + endpoint + "?" + queryString);
 
         HttpGet httpGet = new HttpGet(uri);
         httpGet.addHeader("Authorization", "Bearer " + token);
@@ -72,6 +72,39 @@ public class HttpClientBase {
         httpPut.setHeader("Content-type", "application/json");
         httpPut.setEntity(new StringEntity(json));
         return getResponse(httpPut);
+    }
+
+    public HttpResponseWrapper delete(String endpoint, String json) throws IOException {
+        String token = tokenService.extractToken(tokenService.getWriteToken());
+        HttpDeleteWithBody httpDelete = new HttpDeleteWithBody(API_REQUEST_URI + endpoint);
+        httpDelete.addHeader("Authorization", "Bearer " + token);
+        httpDelete.setHeader("Content-type", "application/json");
+        httpDelete.setEntity(new StringEntity(json));
+        return getResponse(httpDelete);
+    }
+
+    public HttpResponseWrapper delete(String endpoint, Map<String, String> queryParams) throws IOException, URISyntaxException {
+        String token = tokenService.extractToken(tokenService.getWriteToken());
+
+        // Construct the query string
+        StringBuilder queryString = new StringBuilder();
+        for (Map.Entry<String, String> entry : queryParams.entrySet()) {
+            if (queryString.length() != 0) {
+                queryString.append("&");
+            }
+            queryString.append(URLEncoder.encode(entry.getKey(), StandardCharsets.UTF_8))
+                    .append("=")
+                    .append(URLEncoder.encode(entry.getValue(), StandardCharsets.UTF_8));
+        }
+
+        // Construct the full URI
+        URI uri = new URI(API_REQUEST_URI + endpoint + "?" + queryString);
+        System.out.println(uri);
+
+        HttpDelete httpDelete = new HttpDelete(uri);
+        httpDelete.addHeader("Authorization", "Bearer " + token);
+        httpDelete.setHeader("Content-type", "application/json");
+        return getResponse(httpDelete);
     }
 
     private HttpResponseWrapper getResponse(HttpUriRequest request) throws IOException {
