@@ -8,7 +8,6 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.util.EntityUtils;
 
 import java.io.IOException;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -28,36 +27,22 @@ public class HttpClientBase {
     }
 
     public HttpResponseWrapper get(String endpoint) throws IOException {
-        String token = tokenService.extractToken(tokenService.getReadToken());
+        String token = tokenService.getReadToken();
         HttpGet httpGet = new HttpGet(API_REQUEST_URI + endpoint);
         httpGet.addHeader("Authorization", "Bearer " + token);
         return getResponse(httpGet);
     }
 
     public HttpResponseWrapper get(String endpoint, Map<String, String> queryParams) throws IOException, URISyntaxException {
-        String token = tokenService.extractToken(tokenService.getReadToken());
-
-        // Construct the query string
-        StringBuilder queryString = new StringBuilder();
-        for (Map.Entry<String, String> entry : queryParams.entrySet()) {
-            if (queryString.length() != 0) {
-                queryString.append("&");
-            }
-            queryString.append(URLEncoder.encode(entry.getKey(), StandardCharsets.UTF_8))
-                    .append("=")
-                    .append(URLEncoder.encode(entry.getValue(), StandardCharsets.UTF_8));
-        }
-
-        // Construct the full URI
-        URI uri = new URI(API_REQUEST_URI + endpoint + "?" + queryString);
-
-        HttpGet httpGet = new HttpGet(uri);
+        String token = tokenService.getReadToken();
+        StringBuilder queryString = queryParamsBuilder(queryParams);
+        HttpGet httpGet = new HttpGet(API_REQUEST_URI + endpoint + queryString);
         httpGet.addHeader("Authorization", "Bearer " + token);
         return getResponse(httpGet);
     }
 
     public HttpResponseWrapper post(String endpoint, String json) throws IOException {
-        String token = tokenService.extractToken(tokenService.getWriteToken());
+        String token = tokenService.getWriteToken();
         HttpPost httpPost = new HttpPost(API_REQUEST_URI + endpoint);
         httpPost.addHeader("Authorization", "Bearer " + token);
         httpPost.setHeader("Content-type", "application/json");
@@ -66,7 +51,7 @@ public class HttpClientBase {
     }
 
     public HttpResponseWrapper put(String endpoint, String json) throws IOException {
-        String token = tokenService.extractToken(tokenService.getWriteToken());
+        String token = tokenService.getWriteToken();
         HttpPut httpPut = new HttpPut(API_REQUEST_URI + endpoint);
         httpPut.addHeader("Authorization", "Bearer " + token);
         httpPut.setHeader("Content-type", "application/json");
@@ -75,36 +60,12 @@ public class HttpClientBase {
     }
 
     public HttpResponseWrapper delete(String endpoint, String json) throws IOException {
-        String token = tokenService.extractToken(tokenService.getWriteToken());
+        String token = tokenService.getWriteToken();
         HttpDeleteWithBody httpDelete = new HttpDeleteWithBody(API_REQUEST_URI + endpoint);
         httpDelete.addHeader("Authorization", "Bearer " + token);
         httpDelete.setHeader("Content-type", "application/json");
         httpDelete.setEntity(new StringEntity(json));
-        return getResponse(httpDelete);
-    }
-
-    public HttpResponseWrapper delete(String endpoint, Map<String, String> queryParams) throws IOException, URISyntaxException {
-        String token = tokenService.extractToken(tokenService.getWriteToken());
-
-        // Construct the query string
-        StringBuilder queryString = new StringBuilder();
-        for (Map.Entry<String, String> entry : queryParams.entrySet()) {
-            if (queryString.length() != 0) {
-                queryString.append("&");
-            }
-            queryString.append(URLEncoder.encode(entry.getKey(), StandardCharsets.UTF_8))
-                    .append("=")
-                    .append(URLEncoder.encode(entry.getValue(), StandardCharsets.UTF_8));
-        }
-
-        // Construct the full URI
-        URI uri = new URI(API_REQUEST_URI + endpoint + "?" + queryString);
-        System.out.println(uri);
-
-        HttpDelete httpDelete = new HttpDelete(uri);
-        httpDelete.addHeader("Authorization", "Bearer " + token);
-        httpDelete.setHeader("Content-type", "application/json");
-        return getResponse(httpDelete);
+        return getResponseWithoutBody(httpDelete);
     }
 
     private HttpResponseWrapper getResponse(HttpUriRequest request) throws IOException {
@@ -116,5 +77,29 @@ public class HttpClientBase {
             log.error("Error executing request", e);
             throw e;
         }
+    }
+
+    private HttpResponseWrapper getResponseWithoutBody(HttpUriRequest request) throws IOException {
+        try (CloseableHttpResponse response = client.execute(request)) {
+            int statusCode = response.getStatusLine().getStatusCode();
+            return new HttpResponseWrapper(statusCode);
+        } catch (IOException e) {
+            log.error("Error executing request", e);
+            throw e;
+        }
+    }
+
+    private StringBuilder queryParamsBuilder(Map<String, String> queryParams) {
+        StringBuilder queryString = new StringBuilder();
+        queryString.append("?");
+        for (Map.Entry<String, String> entry : queryParams.entrySet()) {
+            if (queryString.length() != 0) {
+                queryString.append("&");
+            }
+            queryString.append(URLEncoder.encode(entry.getKey(), StandardCharsets.UTF_8))
+                    .append("=")
+                    .append(URLEncoder.encode(entry.getValue(), StandardCharsets.UTF_8));
+        }
+        return queryString;
     }
 }

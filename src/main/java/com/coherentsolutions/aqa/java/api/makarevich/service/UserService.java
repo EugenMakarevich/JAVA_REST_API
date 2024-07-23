@@ -123,7 +123,6 @@ public class UserService {
     public HttpResponseWrapper deleteUser(User user, int statusCode) {
         try {
             String userJson = objectMapper.writeValueAsString(user);
-            System.out.println(userJson);
             HttpResponseWrapper response = httpClientBase.delete(API_USER_ENDPOINT, userJson);
             if (response.getStatusCode() != statusCode) {
                 throw new RuntimeException("Unexpected response status: " + response.getStatusCode());

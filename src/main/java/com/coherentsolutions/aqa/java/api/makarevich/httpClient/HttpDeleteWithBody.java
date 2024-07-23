@@ -1,29 +1,27 @@
 package com.coherentsolutions.aqa.java.api.makarevich.httpClient;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.client.methods.HttpDelete;
+import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
 
 import java.net.URI;
 
-class HttpDeleteWithBody extends HttpDelete {
-    private HttpEntity entity;
+public class HttpDeleteWithBody extends HttpEntityEnclosingRequestBase {
+    public static final String METHOD_NAME = "DELETE";
+
+    public HttpDeleteWithBody(final String uri) {
+        super();
+        setURI(URI.create(uri));
+    }
+
+    public HttpDeleteWithBody(final URI uri) {
+        super();
+        setURI(uri);
+    }
 
     public HttpDeleteWithBody() {
+        super();
     }
 
-    public HttpDeleteWithBody(URI uri) {
-        this.setURI(uri);
-    }
-
-    public HttpDeleteWithBody(String uri) {
-        this.setURI(URI.create(uri));
-    }
-
-    public HttpEntity getEntity() {
-        return this.entity;
-    }
-
-    public void setEntity(HttpEntity entity) {
-        this.entity = entity;
+    public String getMethod() {
+        return METHOD_NAME;
     }
 }
