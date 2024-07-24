@@ -9,6 +9,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -17,6 +18,7 @@ import java.util.Map;
 import java.util.Random;
 
 import static com.coherentsolutions.aqa.java.api.makarevich.configuration.Configuration.API_USER_ENDPOINT;
+import static com.coherentsolutions.aqa.java.api.makarevich.configuration.Configuration.API_USER_UPLOAD_ENDPOINT;
 import static com.coherentsolutions.aqa.java.api.makarevich.factory.UserFactory.*;
 import static org.apache.http.HttpStatus.SC_CREATED;
 import static org.apache.http.HttpStatus.SC_OK;
@@ -130,6 +132,22 @@ public class UserService {
             return response;
         } catch (IOException e) {
             throw new RuntimeException("Failed to get users", e);
+        }
+    }
+
+    public HttpResponseWrapper uploadUser(File users, int statusCode) {
+        try {
+            String userJson = objectMapper.writeValueAsString(users);
+            System.out.println(userJson);
+            HttpResponseWrapper response = httpClientBase.postUpload(API_USER_UPLOAD_ENDPOINT, userJson);
+            if (response.getStatusCode() != statusCode) {
+                throw new RuntimeException("Unexpected response status: " + response.getStatusCode());
+            }
+            return response;
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException("Failed to convert zip code to JSON", e);
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to send POST request", e);
         }
     }
 

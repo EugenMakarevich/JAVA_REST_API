@@ -50,6 +50,27 @@ public class HttpClientBase {
         return getResponse(httpPost);
     }
 
+    public HttpResponseWrapper postUpload(String endpoint, String json) throws IOException {
+        String token = tokenService.getWriteToken();
+        HttpPost httpPost = new HttpPost(API_REQUEST_URI + endpoint);
+        httpPost.addHeader("Authorization", "Bearer " + token);
+        httpPost.setHeader("Content-type", "multipart/form-data");
+        httpPost.setEntity(new StringEntity(json));
+        return getResponse(httpPost);
+    }
+
+    /*public HttpResponseWrapper post(String endpoint, File users) throws IOException {
+        String token = tokenService.getWriteToken();
+        Multi
+        builder.setMode(HttpMultipartMode.LEGACY);
+        builder.addBinaryBody("file", file, ContentType.DEFAULT_BINARY, TEXTFILENAME);
+        HttpPost httpPost = new HttpPost(API_REQUEST_URI + endpoint);
+        httpPost.addHeader("Authorization", "Bearer " + token);
+        //httpPost.setHeader("Content-type", "application/json");
+        httpPost.setEntity(new StringEntity(users));
+        return getResponse(httpPost);
+    }*/
+
     public HttpResponseWrapper put(String endpoint, String json) throws IOException {
         String token = tokenService.getWriteToken();
         HttpPut httpPut = new HttpPut(API_REQUEST_URI + endpoint);
