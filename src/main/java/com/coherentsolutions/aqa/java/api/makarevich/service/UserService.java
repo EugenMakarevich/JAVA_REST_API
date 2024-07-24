@@ -161,7 +161,7 @@ public class UserService {
 
     public User createUserWithoutRequiredField(User user) {
         User newUser = new User();
-        int attributeToChange = new Random().nextInt(3);
+        int attributeToChange = new Random().nextInt(2);
         switch (attributeToChange) {
             case 0:
                 newUser.setAge(user.getAge());
@@ -169,10 +169,6 @@ public class UserService {
                 break;
             case 1:
                 newUser.setAge(user.getAge());
-                newUser.setSex(user.getSex());
-                break;
-            case 2:
-                newUser.setName(user.getName());
                 newUser.setSex(user.getSex());
                 break;
             default:
