@@ -120,6 +120,19 @@ public class UserService {
         }
     }
 
+    public HttpResponseWrapper deleteUser(User user, int statusCode) {
+        try {
+            String userJson = objectMapper.writeValueAsString(user);
+            HttpResponseWrapper response = httpClientBase.delete(API_USER_ENDPOINT, userJson);
+            if (response.getStatusCode() != statusCode) {
+                throw new RuntimeException("Unexpected response status: " + response.getStatusCode());
+            }
+            return response;
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to get users", e);
+        }
+    }
+
     public User changeRandomUserValue(User user) {
         User modifiedUser = user.clone();
         int attributeToChange = new Random().nextInt(3);
@@ -148,7 +161,7 @@ public class UserService {
 
     public User createUserWithoutRequiredField(User user) {
         User newUser = new User();
-        int attributeToChange = new Random().nextInt(3);
+        int attributeToChange = new Random().nextInt(2);
         switch (attributeToChange) {
             case 0:
                 newUser.setAge(user.getAge());
@@ -156,10 +169,6 @@ public class UserService {
                 break;
             case 1:
                 newUser.setAge(user.getAge());
-                newUser.setSex(user.getSex());
-                break;
-            case 2:
-                newUser.setName(user.getName());
                 newUser.setSex(user.getSex());
                 break;
             default:

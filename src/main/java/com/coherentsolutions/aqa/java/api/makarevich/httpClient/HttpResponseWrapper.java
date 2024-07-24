@@ -8,8 +8,12 @@ import java.util.ArrayList;
 
 @Getter
 public class HttpResponseWrapper {
-    private final int statusCode;
-    private final String responseBody;
+    private int statusCode;
+    private String responseBody;
+
+    public HttpResponseWrapper(int statusCode) {
+        this.statusCode = statusCode;
+    }
 
     public HttpResponseWrapper(int statusCode, String responseBody) {
         this.statusCode = statusCode;

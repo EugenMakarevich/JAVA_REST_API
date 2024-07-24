@@ -69,14 +69,14 @@ public class TokenService {
         try (CloseableHttpResponse response = client.execute(httpPost)) {
             int statusCode = response.getStatusLine().getStatusCode();
             if (statusCode >= SC_OK && statusCode < SC_MULTIPLE_CHOICES) {
-                return EntityUtils.toString(response.getEntity());
+                return extractToken(EntityUtils.toString(response.getEntity()));
             } else {
                 throw new IOException("Failed to get token, status code: " + statusCode);
             }
         }
     }
 
-    public String extractToken(String responseBody) {
+    private String extractToken(String responseBody) {
         JsonNode jsonNode;
         try {
             jsonNode = objectMapper.readTree(responseBody);
