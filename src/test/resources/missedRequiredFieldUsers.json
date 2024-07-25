@@ -3,18 +3,17 @@
     "age": 25,
     "name": "Alice",
     "sex": "FEMALE",
-    "zipCode": "23456"
+    "zipCode": null
   },
   {
     "age": 30,
-    "name": "Bob",
     "sex": "MALE",
-    "zipCode": "ABCDE"
+    "zipCode": null
   },
   {
     "age": 22,
     "name": "Catherine",
     "sex": "FEMALE",
-    "zipCode": "32736"
+    "zipCode": null
   }
 ]
