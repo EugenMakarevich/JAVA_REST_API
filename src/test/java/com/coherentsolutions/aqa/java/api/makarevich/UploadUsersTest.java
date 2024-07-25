@@ -15,15 +15,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class UploadUsersTest extends TestBase {
     @Test
     public void uploadValidUsersTest() {
-        int numberOfUsersUploaded = 3;
-        int numberOfUsersCreated = 3;
-        ArrayList<User> usersBeforeUpload = userService.createMultipleUsers(numberOfUsersCreated);
-        System.out.println(usersBeforeUpload);
+        userService.createMultipleUsers();
         File json = new File(TEST_DATA_PATH + "validUsers.json");
         HttpResponseWrapper response = userService.uploadUser(json, SC_CREATED);
-        //Create method that parse the json file
-        // and returns the ArrayList<User>
-        System.out.println(userService.getUsers());
-        assertEquals(response.getResponseBody(), UPLOAD_RESPONSE_BODY + numberOfUsersUploaded);
+        ArrayList<User> usersFromJson = userService.getUsersFromJson(json);
+        int numberOfUsersFromJson = usersFromJson.size();
+        ArrayList<User> usersAfterUpload = userService.getUsers();
+        assertEquals(usersFromJson, usersAfterUpload, "User lists are not equal");
+        assertEquals(response.getResponseBody(), UPLOAD_RESPONSE_BODY + numberOfUsersFromJson, "Response body is different from expected");
     }
 }

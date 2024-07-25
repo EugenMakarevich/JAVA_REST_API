@@ -12,10 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 
 import static com.coherentsolutions.aqa.java.api.makarevich.configuration.Configuration.API_USER_ENDPOINT;
 import static com.coherentsolutions.aqa.java.api.makarevich.configuration.Configuration.API_USER_UPLOAD_ENDPOINT;
@@ -107,8 +104,9 @@ public class UserService {
         }
     }
 
-    public ArrayList<User> createMultipleUsers(int numOfUsers) {
+    public ArrayList<User> createMultipleUsers() {
         ArrayList<User> users = new ArrayList<>();
+        int numOfUsers = new Random().nextInt(2, 5);
         for (int i = 0; i < numOfUsers; i++) {
             User user = generateRandomUser();
             createUser(user);
@@ -201,6 +199,17 @@ public class UserService {
                 throw new IllegalStateException("Unexpected value: " + attributeToChange);
         }
         return newUser;
+    }
+
+    public ArrayList<User> getUsersFromJson(File json) {
+        try {
+            List<User> users = objectMapper.readValue(json, new TypeReference<List<User>>() {
+            });
+            return new ArrayList<>(users);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return new ArrayList<>();
+        }
     }
 
     private String generateUserUpdateJson(User userWithNewValues, User userToBeChanged) {
