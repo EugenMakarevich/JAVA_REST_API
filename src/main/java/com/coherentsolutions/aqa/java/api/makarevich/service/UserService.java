@@ -9,14 +9,13 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 
 import static com.coherentsolutions.aqa.java.api.makarevich.configuration.Configuration.API_USER_ENDPOINT;
+import static com.coherentsolutions.aqa.java.api.makarevich.configuration.Configuration.API_USER_UPLOAD_ENDPOINT;
 import static com.coherentsolutions.aqa.java.api.makarevich.factory.UserFactory.*;
 import static org.apache.http.HttpStatus.SC_CREATED;
 import static org.apache.http.HttpStatus.SC_OK;
@@ -105,6 +104,17 @@ public class UserService {
         }
     }
 
+    public ArrayList<User> createMultipleUsers() {
+        ArrayList<User> users = new ArrayList<>();
+        int numOfUsers = new Random().nextInt(2, 5);
+        for (int i = 0; i < numOfUsers; i++) {
+            User user = generateRandomUser();
+            createUser(user);
+            users.add(user);
+        }
+        return users;
+    }
+
     public HttpResponseWrapper updateUser(User userNewValues, User userToChange, int statusCode) {
         try {
             String userJson = generateUserUpdateJson(userNewValues, userToChange);
@@ -130,6 +140,20 @@ public class UserService {
             return response;
         } catch (IOException e) {
             throw new RuntimeException("Failed to get users", e);
+        }
+    }
+
+    public HttpResponseWrapper uploadUser(File users, int statusCode) {
+        try {
+            HttpResponseWrapper response = httpClientBase.post(API_USER_UPLOAD_ENDPOINT, users);
+            if (response.getStatusCode() != statusCode) {
+                throw new RuntimeException("Unexpected response status: " + response.getStatusCode());
+            }
+            return response;
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException("Failed to convert zip code to JSON", e);
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to send POST request", e);
         }
     }
 
@@ -175,6 +199,17 @@ public class UserService {
                 throw new IllegalStateException("Unexpected value: " + attributeToChange);
         }
         return newUser;
+    }
+
+    public ArrayList<User> getUsersFromJson(File json) {
+        try {
+            List<User> users = objectMapper.readValue(json, new TypeReference<List<User>>() {
+            });
+            return new ArrayList<>(users);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return new ArrayList<>();
+        }
     }
 
     private String generateUserUpdateJson(User userWithNewValues, User userToBeChanged) {
