@@ -3,10 +3,13 @@ package com.coherentsolutions.aqa.java.api.makarevich.httpClient;
 import com.coherentsolutions.aqa.java.api.makarevich.service.TokenService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.client.methods.*;
+import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.util.EntityUtils;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
@@ -50,26 +53,15 @@ public class HttpClientBase {
         return getResponse(httpPost);
     }
 
-    public HttpResponseWrapper postUpload(String endpoint, String json) throws IOException {
+    public HttpResponseWrapper post(String endpoint, File users) throws IOException {
         String token = tokenService.getWriteToken();
+        MultipartEntityBuilder builder = MultipartEntityBuilder.create();
+        builder.addBinaryBody("file", users, ContentType.DEFAULT_BINARY, users.getName());
         HttpPost httpPost = new HttpPost(API_REQUEST_URI + endpoint);
         httpPost.addHeader("Authorization", "Bearer " + token);
-        httpPost.setHeader("Content-type", "multipart/form-data");
-        httpPost.setEntity(new StringEntity(json));
+        httpPost.setEntity(builder.build());
         return getResponse(httpPost);
     }
-
-    /*public HttpResponseWrapper post(String endpoint, File users) throws IOException {
-        String token = tokenService.getWriteToken();
-        Multi
-        builder.setMode(HttpMultipartMode.LEGACY);
-        builder.addBinaryBody("file", file, ContentType.DEFAULT_BINARY, TEXTFILENAME);
-        HttpPost httpPost = new HttpPost(API_REQUEST_URI + endpoint);
-        httpPost.addHeader("Authorization", "Bearer " + token);
-        //httpPost.setHeader("Content-type", "application/json");
-        httpPost.setEntity(new StringEntity(users));
-        return getResponse(httpPost);
-    }*/
 
     public HttpResponseWrapper put(String endpoint, String json) throws IOException {
         String token = tokenService.getWriteToken();

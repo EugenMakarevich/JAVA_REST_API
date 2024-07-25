@@ -14,4 +14,5 @@ public class Configuration {
     public static final String API_ZIPCODES_EXPAND_ENDPOINT = API_ZIPCODES_ENDPOINT + ConfigUtils.getProperty("api.zipcodes.expand.endpoint");
     public static final String API_USER_ENDPOINT = ConfigUtils.getProperty("api.users.endpoint");
     public static final String API_USER_UPLOAD_ENDPOINT = API_USER_ENDPOINT + ConfigUtils.getProperty("api.users.upload.endpoint");
+    public static final String TEST_DATA_PATH = ConfigUtils.getProperty("testdata.path");
 }

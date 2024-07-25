@@ -107,6 +107,16 @@ public class UserService {
         }
     }
 
+    public ArrayList<User> createMultipleUsers(int numOfUsers) {
+        ArrayList<User> users = new ArrayList<>();
+        for (int i = 0; i < numOfUsers; i++) {
+            User user = generateRandomUser();
+            createUser(user);
+            users.add(user);
+        }
+        return users;
+    }
+
     public HttpResponseWrapper updateUser(User userNewValues, User userToChange, int statusCode) {
         try {
             String userJson = generateUserUpdateJson(userNewValues, userToChange);
@@ -137,9 +147,7 @@ public class UserService {
 
     public HttpResponseWrapper uploadUser(File users, int statusCode) {
         try {
-            String userJson = objectMapper.writeValueAsString(users);
-            System.out.println(userJson);
-            HttpResponseWrapper response = httpClientBase.postUpload(API_USER_UPLOAD_ENDPOINT, userJson);
+            HttpResponseWrapper response = httpClientBase.post(API_USER_UPLOAD_ENDPOINT, users);
             if (response.getStatusCode() != statusCode) {
                 throw new RuntimeException("Unexpected response status: " + response.getStatusCode());
             }
