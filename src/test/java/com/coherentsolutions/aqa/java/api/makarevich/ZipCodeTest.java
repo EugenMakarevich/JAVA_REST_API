@@ -1,5 +1,6 @@
 package com.coherentsolutions.aqa.java.api.makarevich;
 
+import io.qameta.allure.Issue;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -11,12 +12,14 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ZipCodeTest extends TestBase {
     @Test
+    @Issue("Unexpected response status: 201")
     public void getZipCodesTest() {
         ArrayList<String> zipCodes = zipCodeService.getZipCodes();
         assertFalse(zipCodes.isEmpty(), "List of zip codes is empty");
     }
 
     @Test
+    @Issue("Unexpected response status: 201")
     public void addZipCodeTest() {
         String zipcode = generateRandomZipCode();
         zipCodeService.addZipCode(zipcode);
@@ -25,6 +28,7 @@ public class ZipCodeTest extends TestBase {
     }
 
     @Test
+    @Issue("Unexpected response status: 201")
     public void addAvailableDuplicatedZipCodesTest() {
         String zipCode = generateRandomZipCode();
         zipCodeService.addZipCode(zipCode, zipCode);
@@ -33,6 +37,7 @@ public class ZipCodeTest extends TestBase {
     }
 
     @Test
+    @Issue("Unexpected response status: 201")
     public void addAlreadyExistsZipCodesTest() {
         String zipCode = generateRandomZipCode();
         zipCodeService.addZipCode(zipCode);

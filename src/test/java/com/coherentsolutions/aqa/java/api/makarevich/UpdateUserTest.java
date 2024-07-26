@@ -1,6 +1,7 @@
 package com.coherentsolutions.aqa.java.api.makarevich;
 
 import com.coherentsolutions.aqa.java.api.makarevich.model.User;
+import io.qameta.allure.Issue;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -23,6 +24,7 @@ public class UpdateUserTest extends TestBase {
     }
 
     @Test
+    @Issue("User is not present ==> expected: <true> but was: <false>")
     public void updateUserWithUnavailableZipCode() {
         User userToChange = generateRandomUser();
         userService.createUser(userToChange);
@@ -34,6 +36,7 @@ public class UpdateUserTest extends TestBase {
     }
 
     @Test
+    @Issue("User is not present ==> expected: <true> but was: <false>")
     public void updateUserWithMissingRequiredFields() {
         User userToChange = generateRandomUser();
         userService.createUser(userToChange);

@@ -2,6 +2,7 @@ package com.coherentsolutions.aqa.java.api.makarevich;
 
 import com.coherentsolutions.aqa.java.api.makarevich.httpClient.HttpResponseWrapper;
 import com.coherentsolutions.aqa.java.api.makarevich.model.User;
+import io.qameta.allure.Issue;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
@@ -26,6 +27,7 @@ public class UploadUsersTest extends TestBase {
     }
 
     @Test
+    @Issue("Unexpected response status: 500")
     public void uploadUsersWithUnavailableZipCodeTest() {
         userService.createMultipleUsers();
         ArrayList<User> usersBeforeUpload = userService.getUsers();
@@ -36,6 +38,7 @@ public class UploadUsersTest extends TestBase {
     }
 
     @Test
+    @Issue("Unexpected response status: 500")
     public void uploadUsersWithMissedReqiuredFieldTest() {
         userService.createMultipleUsers();
         ArrayList<User> usersBeforeUpload = userService.getUsers();
