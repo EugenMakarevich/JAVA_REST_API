@@ -7,6 +7,7 @@ import com.coherentsolutions.aqa.java.api.makarevich.model.User;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.qameta.allure.Step;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
@@ -30,6 +31,7 @@ public class UserService {
         objectMapper = new ObjectMapper();
     }
 
+    @Step("Get users")
     public ArrayList<User> getUsers(Integer olderThan, String sex, Integer youngerThan) {
         try {
             Map<String, String> queryParams = queryParamsConstructor(olderThan, sex, youngerThan);
@@ -45,22 +47,27 @@ public class UserService {
         }
     }
 
+    @Step("Get all users")
     public ArrayList<User> getUsers() {
         return getUsers(null, null, null);
     }
 
+    @Step("Get users older than")
     public ArrayList<User> getUsersOlderThan(Integer olderThan) {
         return getUsers(olderThan, null, null);
     }
 
+    @Step("Get users younger than")
     public ArrayList<User> getUsersYoungerThan(Integer youngerThan) {
         return getUsers(null, null, youngerThan);
     }
 
+    @Step("Get users by sex")
     public ArrayList<User> getUsersBySex(UserSex sex) {
         return getUsers(null, String.valueOf(sex), null);
     }
 
+    @Step("Get random user from database")
     public User getRandomUser() {
         ArrayList<User> users = getUsers();
         if (users.isEmpty()) {
@@ -70,10 +77,12 @@ public class UserService {
         return users.get(new Random().nextInt(users.size()));
     }
 
+    @Step("Check if user is added")
     public boolean isUserAdded(User user) {
         return getUsers().contains(user);
     }
 
+    @Step("Create user")
     public HttpResponseWrapper createUser(User user) {
         try {
             String userJson = objectMapper.writeValueAsString(user);
@@ -89,6 +98,7 @@ public class UserService {
         }
     }
 
+    @Step("Create user and verify specified status code")
     public HttpResponseWrapper createUser(User user, int statusCode) {
         try {
             String userJson = objectMapper.writeValueAsString(user);
@@ -104,6 +114,7 @@ public class UserService {
         }
     }
 
+    @Step("Create multiple users")
     public ArrayList<User> createMultipleUsers() {
         ArrayList<User> users = new ArrayList<>();
         int numOfUsers = new Random().nextInt(2, 5);
@@ -115,6 +126,7 @@ public class UserService {
         return users;
     }
 
+    @Step("Update user")
     public HttpResponseWrapper updateUser(User userNewValues, User userToChange, int statusCode) {
         try {
             String userJson = generateUserUpdateJson(userNewValues, userToChange);
@@ -130,6 +142,7 @@ public class UserService {
         }
     }
 
+    @Step("Delete user")
     public HttpResponseWrapper deleteUser(User user, int statusCode) {
         try {
             String userJson = objectMapper.writeValueAsString(user);
@@ -143,6 +156,7 @@ public class UserService {
         }
     }
 
+    @Step("Upload user")
     public HttpResponseWrapper uploadUser(File users, int statusCode) {
         try {
             HttpResponseWrapper response = httpClientBase.post(API_USER_UPLOAD_ENDPOINT, users);
@@ -157,6 +171,7 @@ public class UserService {
         }
     }
 
+    @Step("Change random required user value")
     public User changeRandomUserValue(User user) {
         User modifiedUser = user.clone();
         int attributeToChange = new Random().nextInt(3);
@@ -176,6 +191,7 @@ public class UserService {
         return modifiedUser;
     }
 
+    @Step("Change user zip code to random")
     public User changeUserZipCode(User user) {
         User modifiedUser = user.clone();
         String zipCode = generateRandomZipCode();
@@ -183,6 +199,7 @@ public class UserService {
         return modifiedUser;
     }
 
+    @Step("Create user without required field")
     public User createUserWithoutRequiredField(User user) {
         User newUser = new User();
         int attributeToChange = new Random().nextInt(2);
@@ -201,6 +218,7 @@ public class UserService {
         return newUser;
     }
 
+    @Step("Get array of users from json file")
     public ArrayList<User> getUsersFromJson(File json) {
         try {
             List<User> users = objectMapper.readValue(json, new TypeReference<List<User>>() {
@@ -212,6 +230,7 @@ public class UserService {
         }
     }
 
+    @Step("Generate string to update user value")
     private String generateUserUpdateJson(User userWithNewValues, User userToBeChanged) {
         try {
             Object combined = new Object() {
@@ -225,6 +244,7 @@ public class UserService {
         }
     }
 
+    @Step("Build query parameters string to filter users")
     private Map<String, String> queryParamsConstructor(Integer olderThan, String sex, Integer youngerThan) {
         Map<String, String> queryParams = new HashMap<>();
         if (olderThan != null) {

@@ -2,6 +2,7 @@ package com.coherentsolutions.aqa.java.api.makarevich.httpClient;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.qameta.allure.Step;
 import lombok.Getter;
 
 import java.util.ArrayList;
@@ -20,6 +21,7 @@ public class HttpResponseWrapper {
         this.responseBody = responseBody;
     }
 
+    @Step("Get response body as array")
     public ArrayList<String> getReponseBodyAsArray() {
         ObjectMapper objectMapper = new ObjectMapper();
         ArrayList<String> arrayList;

@@ -1,6 +1,7 @@
 package com.coherentsolutions.aqa.java.api.makarevich.httpClient;
 
 import com.coherentsolutions.aqa.java.api.makarevich.service.TokenService;
+import io.qameta.allure.Step;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.client.methods.*;
 import org.apache.http.entity.ContentType;
@@ -29,6 +30,7 @@ public class HttpClientBase {
         tokenService = TokenService.getInstance();
     }
 
+    @Step("Sent GET request")
     public HttpResponseWrapper get(String endpoint) throws IOException {
         String token = tokenService.getReadToken();
         HttpGet httpGet = new HttpGet(API_REQUEST_URI + endpoint);
@@ -36,6 +38,7 @@ public class HttpClientBase {
         return getResponse(httpGet);
     }
 
+    @Step("Sent GET request with parameters specified")
     public HttpResponseWrapper get(String endpoint, Map<String, String> queryParams) throws IOException, URISyntaxException {
         String token = tokenService.getReadToken();
         StringBuilder queryString = queryParamsBuilder(queryParams);
@@ -44,6 +47,7 @@ public class HttpClientBase {
         return getResponse(httpGet);
     }
 
+    @Step("Sent POST request with string")
     public HttpResponseWrapper post(String endpoint, String json) throws IOException {
         String token = tokenService.getWriteToken();
         HttpPost httpPost = new HttpPost(API_REQUEST_URI + endpoint);
@@ -53,6 +57,7 @@ public class HttpClientBase {
         return getResponse(httpPost);
     }
 
+    @Step("Sent POST request with file")
     public HttpResponseWrapper post(String endpoint, File users) throws IOException {
         String token = tokenService.getWriteToken();
         MultipartEntityBuilder builder = MultipartEntityBuilder.create();
@@ -63,6 +68,7 @@ public class HttpClientBase {
         return getResponse(httpPost);
     }
 
+    @Step("Sent PUT request")
     public HttpResponseWrapper put(String endpoint, String json) throws IOException {
         String token = tokenService.getWriteToken();
         HttpPut httpPut = new HttpPut(API_REQUEST_URI + endpoint);
@@ -72,6 +78,7 @@ public class HttpClientBase {
         return getResponse(httpPut);
     }
 
+    @Step("Sent DELETE request")
     public HttpResponseWrapper delete(String endpoint, String json) throws IOException {
         String token = tokenService.getWriteToken();
         HttpDeleteWithBody httpDelete = new HttpDeleteWithBody(API_REQUEST_URI + endpoint);
@@ -81,6 +88,7 @@ public class HttpClientBase {
         return getResponseWithoutBody(httpDelete);
     }
 
+    @Step("Get response")
     private HttpResponseWrapper getResponse(HttpUriRequest request) throws IOException {
         try (CloseableHttpResponse response = client.execute(request)) {
             int statusCode = response.getStatusLine().getStatusCode();
@@ -92,6 +100,7 @@ public class HttpClientBase {
         }
     }
 
+    @Step("Get response without body")
     private HttpResponseWrapper getResponseWithoutBody(HttpUriRequest request) throws IOException {
         try (CloseableHttpResponse response = client.execute(request)) {
             int statusCode = response.getStatusLine().getStatusCode();
@@ -102,6 +111,7 @@ public class HttpClientBase {
         }
     }
 
+    @Step("Build query parameters string")
     private StringBuilder queryParamsBuilder(Map<String, String> queryParams) {
         StringBuilder queryString = new StringBuilder();
         queryString.append("?");

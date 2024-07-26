@@ -4,6 +4,7 @@ import com.coherentsolutions.aqa.java.api.makarevich.httpClient.HttpClient;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.qameta.allure.Step;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
@@ -41,6 +42,7 @@ public class TokenService {
         return instance;
     }
 
+    @Step("Get write token")
     public String getWriteToken() {
         try {
             return getToken("write");
@@ -49,6 +51,7 @@ public class TokenService {
         }
     }
 
+    @Step("Get read token")
     public String getReadToken() {
         try {
             return getToken("read");
@@ -57,6 +60,7 @@ public class TokenService {
         }
     }
 
+    @Step("Get response with token")
     private String getToken(String scope) throws IOException {
         HttpPost httpPost = new HttpPost(API_REQUEST_URI + API_TOKEN_ENDPOINT);
 
@@ -76,6 +80,7 @@ public class TokenService {
         }
     }
 
+    @Step("Extract token from response body")
     private String extractToken(String responseBody) {
         JsonNode jsonNode;
         try {

@@ -1,6 +1,7 @@
 package com.coherentsolutions.aqa.java.api.makarevich;
 
 import com.coherentsolutions.aqa.java.api.makarevich.model.User;
+import io.qameta.allure.Issue;
 import org.junit.jupiter.api.Test;
 
 import static com.coherentsolutions.aqa.java.api.makarevich.factory.UserFactory.generateRandomUser;
@@ -12,6 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class DeleteUserTest extends TestBase {
     @Test
+    @Issue("Unexpected response status: 201")
     public void deleteUserWithAllFieldsTest() {
         String zipcode = generateRandomZipCode();
         zipCodeService.addZipCode(zipcode);
@@ -23,6 +25,7 @@ public class DeleteUserTest extends TestBase {
     }
 
     @Test
+    @Issue("User is not deleted ==> expected: <false> but was: <true>")
     public void deleteUserWithRequiredFieldsTest() {
         String zipcode = generateRandomZipCode();
         zipCodeService.addZipCode(zipcode);
