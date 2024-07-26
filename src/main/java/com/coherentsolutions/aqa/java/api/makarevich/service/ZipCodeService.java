@@ -4,6 +4,7 @@ import com.coherentsolutions.aqa.java.api.makarevich.httpClient.HttpClientBase;
 import com.coherentsolutions.aqa.java.api.makarevich.httpClient.HttpResponseWrapper;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.qameta.allure.Step;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -23,6 +24,7 @@ public class ZipCodeService {
         objectMapper = new ObjectMapper();
     }
 
+    @Step("Get zip codes")
     public ArrayList<String> getZipCodes() {
         try {
             HttpResponseWrapper response = httpClientBase.get(API_ZIPCODES_ENDPOINT);
@@ -35,6 +37,7 @@ public class ZipCodeService {
         }
     }
 
+    @Step("Add zip codes")
     public HttpResponseWrapper addZipCode(String... zipCode) {
         try {
             String jsonArray = objectMapper.writeValueAsString(List.of(zipCode));
