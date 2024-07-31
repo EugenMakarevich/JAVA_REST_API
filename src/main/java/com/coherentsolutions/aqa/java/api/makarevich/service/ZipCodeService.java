@@ -9,6 +9,8 @@ import java.util.ArrayList;
 
 import static com.coherentsolutions.aqa.java.api.makarevich.configuration.Configuration.*;
 import static io.restassured.RestAssured.given;
+import static org.apache.http.HttpStatus.SC_CREATED;
+import static org.apache.http.HttpStatus.SC_OK;
 
 public class ZipCodeService {
     @Step("Get zip codes")
@@ -17,7 +19,10 @@ public class ZipCodeService {
                 .header("Authorization", "Bearer " + TokenService.getInstance().getReadToken())
                 .when()
                 .get(API_REQUEST_URI + API_ZIPCODES_ENDPOINT)
-                .getBody()
+                .then()
+                .statusCode(SC_OK)
+                .extract()
+                .body()
                 .as(new TypeRef<ArrayList<String>>() {
                 });
     }
@@ -30,6 +35,10 @@ public class ZipCodeService {
                 .accept(ContentType.JSON)
                 .body(zipCode)
                 .when()
-                .post(API_REQUEST_URI + API_ZIPCODES_EXPAND_ENDPOINT);
+                .post(API_REQUEST_URI + API_ZIPCODES_EXPAND_ENDPOINT)
+                .then()
+                .statusCode(SC_CREATED)
+                .extract()
+                .response();
     }
 }
