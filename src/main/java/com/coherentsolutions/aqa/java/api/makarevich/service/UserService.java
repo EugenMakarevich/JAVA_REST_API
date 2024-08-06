@@ -1,13 +1,14 @@
 package com.coherentsolutions.aqa.java.api.makarevich.service;
 
 import com.coherentsolutions.aqa.java.api.makarevich.httpClient.HttpClientBase;
-import com.coherentsolutions.aqa.java.api.makarevich.httpClient.HttpResponseWrapper;
 import com.coherentsolutions.aqa.java.api.makarevich.model.User;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.qameta.allure.Step;
 import io.restassured.common.mapper.TypeRef;
+import io.restassured.http.ContentType;
+import io.restassured.response.ValidatableResponse;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
@@ -77,35 +78,27 @@ public class UserService {
     }
 
     @Step("Create user")
-    public HttpResponseWrapper createUser(User user) {
-        try {
-            String userJson = objectMapper.writeValueAsString(user);
-            HttpResponseWrapper response = httpClientBase.post(API_USER_ENDPOINT, userJson);
-            if (response.getStatusCode() != SC_CREATED) {
-                throw new RuntimeException("Unexpected response status: " + response.getStatusCode());
-            }
-            return response;
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException("Failed to convert zip code to JSON", e);
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to send POST request", e);
-        }
+    public ValidatableResponse createUser(User user) {
+        return given()
+                .header("Authorization", "Bearer " + TokenService.getInstance().getWriteToken())
+                .contentType(ContentType.JSON)
+                .body(user)
+                .when()
+                .post(API_REQUEST_URI + API_USER_ENDPOINT)
+                .then()
+                .statusCode(SC_CREATED);
     }
 
-    @Step("Create user and verify specified status code")
-    public HttpResponseWrapper createUser(User user, int statusCode) {
-        try {
-            String userJson = objectMapper.writeValueAsString(user);
-            HttpResponseWrapper response = httpClientBase.post(API_USER_ENDPOINT, userJson);
-            if (response.getStatusCode() != statusCode) {
-                throw new RuntimeException("Unexpected response status: " + response.getStatusCode());
-            }
-            return response;
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException("Failed to convert zip code to JSON", e);
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to send POST request", e);
-        }
+    @Step("Create user")
+    public ValidatableResponse createUser(User user, int statusCode) {
+        return given()
+                .header("Authorization", "Bearer " + TokenService.getInstance().getWriteToken())
+                .contentType(ContentType.JSON)
+                .body(user)
+                .when()
+                .post(API_REQUEST_URI + API_USER_ENDPOINT)
+                .then()
+                .statusCode(statusCode);
     }
 
     @Step("Create multiple users")
@@ -120,49 +113,40 @@ public class UserService {
         return users;
     }
 
-    @Step("Update user")
-    public HttpResponseWrapper updateUser(User userNewValues, User userToChange, int statusCode) {
-        try {
-            String userJson = generateUserUpdateJson(userNewValues, userToChange);
-            HttpResponseWrapper response = httpClientBase.put(API_USER_ENDPOINT, userJson);
-            if (response.getStatusCode() != statusCode) {
-                throw new RuntimeException("Unexpected response status: " + response.getStatusCode());
-            }
-            return response;
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException("Failed to convert to JSON", e);
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to send PUT request", e);
-        }
+    @Step("Update User")
+    public ValidatableResponse updateUser(User userNewValues, User userToChange, int statusCode) {
+        return given()
+                .header("Authorization", "Bearer " + TokenService.getInstance().getWriteToken())
+                .contentType(ContentType.JSON)
+                .body(generateUserUpdateJson(userNewValues, userToChange))
+                .when()
+                .patch(API_REQUEST_URI + API_USER_ENDPOINT)
+                .then()
+                .statusCode(statusCode);
     }
 
     @Step("Delete user")
-    public HttpResponseWrapper deleteUser(User user, int statusCode) {
-        try {
-            String userJson = objectMapper.writeValueAsString(user);
-            HttpResponseWrapper response = httpClientBase.delete(API_USER_ENDPOINT, userJson);
-            if (response.getStatusCode() != statusCode) {
-                throw new RuntimeException("Unexpected response status: " + response.getStatusCode());
-            }
-            return response;
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to get users", e);
-        }
+    public ValidatableResponse deleteUser(User user, int statusCode) {
+        return given()
+                .header("Authorization", "Bearer " + TokenService.getInstance().getWriteToken())
+                .contentType(ContentType.JSON)
+                .body(user)
+                .when()
+                .delete(API_REQUEST_URI + API_USER_ENDPOINT)
+                .then()
+                .statusCode(statusCode);
     }
 
-    @Step("Upload user")
-    public HttpResponseWrapper uploadUser(File users, int statusCode) {
-        try {
-            HttpResponseWrapper response = httpClientBase.post(API_USER_UPLOAD_ENDPOINT, users);
-            if (response.getStatusCode() != statusCode) {
-                throw new RuntimeException("Unexpected response status: " + response.getStatusCode());
-            }
-            return response;
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException("Failed to convert zip code to JSON", e);
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to send POST request", e);
-        }
+    @Step("Upload User")
+    public ValidatableResponse uploadUser(File file, int statusCode) {
+        return given()
+                .header("Authorization", "Bearer " + TokenService.getInstance().getWriteToken())
+                .contentType(ContentType.MULTIPART)
+                .multiPart(file)
+                .when()
+                .post(API_REQUEST_URI + API_USER_UPLOAD_ENDPOINT)
+                .then()
+                .statusCode(statusCode);
     }
 
     @Step("Change random required user value")
