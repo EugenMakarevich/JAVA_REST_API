@@ -8,6 +8,8 @@ import io.restassured.response.Response;
 import java.util.ArrayList;
 
 import static com.coherentsolutions.aqa.java.api.makarevich.configuration.Configuration.*;
+import static com.coherentsolutions.aqa.java.api.makarevich.service.TokenService.getReadToken;
+import static com.coherentsolutions.aqa.java.api.makarevich.service.TokenService.getWriteToken;
 import static io.restassured.RestAssured.given;
 import static org.apache.http.HttpStatus.SC_CREATED;
 import static org.apache.http.HttpStatus.SC_OK;
@@ -16,7 +18,7 @@ public class ZipCodeService {
     @Step("Get zip codes")
     public ArrayList<String> getZipCodes() {
         return given()
-                .header("Authorization", "Bearer " + TokenService.getInstance().getReadToken())
+                .header("Authorization", "Bearer " + getReadToken())
                 .when()
                 .get(API_REQUEST_URI + API_ZIPCODES_ENDPOINT)
                 .then()
@@ -30,7 +32,7 @@ public class ZipCodeService {
     @Step("Add zip codes")
     public Response addZipCode(String... zipCode) {
         return given()
-                .header("Authorization", "Bearer " + TokenService.getInstance().getWriteToken())
+                .header("Authorization", "Bearer " + getWriteToken())
                 .contentType(ContentType.JSON)
                 .accept(ContentType.JSON)
                 .body(zipCode)

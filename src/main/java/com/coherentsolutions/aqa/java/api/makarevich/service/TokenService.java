@@ -1,87 +1,48 @@
 package com.coherentsolutions.aqa.java.api.makarevich.service;
 
-import com.coherentsolutions.aqa.java.api.makarevich.httpClient.HttpClient;
+import com.coherentsolutions.aqa.java.api.makarevich.constants.Scope;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.qameta.allure.Step;
+import io.restassured.response.Response;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.util.EntityUtils;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
-import static com.coherentsolutions.aqa.java.api.makarevich.configuration.Configuration.API_REQUEST_URI;
-import static com.coherentsolutions.aqa.java.api.makarevich.configuration.Configuration.API_TOKEN_ENDPOINT;
-import static org.apache.http.HttpStatus.SC_MULTIPLE_CHOICES;
-import static org.apache.http.HttpStatus.SC_OK;
+import static com.coherentsolutions.aqa.java.api.makarevich.configuration.Configuration.*;
+import static com.coherentsolutions.aqa.java.api.makarevich.constants.Scope.READ;
+import static com.coherentsolutions.aqa.java.api.makarevich.constants.Scope.WRITE;
+import static io.restassured.RestAssured.given;
 
 @Slf4j
 public class TokenService {
-    private static TokenService instance;
-    private final CloseableHttpClient client;
-    private final ObjectMapper objectMapper;
-
-    private TokenService() {
-        HttpClient httpClient = HttpClient.getInstance();
-        client = httpClient.getHttpClient();
-        objectMapper = new ObjectMapper();
-    }
-
-    public static synchronized TokenService getInstance() {
-        if (instance == null) {
-            instance = new TokenService();
-        }
-        return instance;
-    }
-
     @Step("Get write token")
-    public String getWriteToken() {
-        try {
-            return getToken("write");
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+    public static String getWriteToken() {
+        return getBearerToken(WRITE);
     }
 
     @Step("Get read token")
-    public String getReadToken() {
-        try {
-            return getToken("read");
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+    public static String getReadToken() {
+        return getBearerToken(READ);
     }
 
     @Step("Get response with token")
-    private String getToken(String scope) throws IOException {
-        HttpPost httpPost = new HttpPost(API_REQUEST_URI + API_TOKEN_ENDPOINT);
+    private static Response getToken(Scope scope) {
+        return given()
+                .param("grant_type", "client_credentials")
+                .param("scope", scope.name().toLowerCase())
+                .auth()
+                .basic(API_USERNAME, API_PASSWORD)
+                .when()
+                .post(API_REQUEST_URI + API_TOKEN_ENDPOINT);
+    }
 
-        List<NameValuePair> params = new ArrayList<>();
-        params.add(new BasicNameValuePair("grant_type", "client_credentials"));
-        params.add(new BasicNameValuePair("scope", scope));
-
-        httpPost.setEntity(new UrlEncodedFormEntity(params));
-
-        try (CloseableHttpResponse response = client.execute(httpPost)) {
-            int statusCode = response.getStatusLine().getStatusCode();
-            if (statusCode >= SC_OK && statusCode < SC_MULTIPLE_CHOICES) {
-                return extractToken(EntityUtils.toString(response.getEntity()));
-            } else {
-                throw new IOException("Failed to get token, status code: " + statusCode);
-            }
-        }
+    private static String getBearerToken(Scope scope) {
+        return extractToken(getToken(scope).getBody().asString());
     }
 
     @Step("Extract token from response body")
-    private String extractToken(String responseBody) {
+    private static String extractToken(String responseBody) {
+        ObjectMapper objectMapper = new ObjectMapper();
         JsonNode jsonNode;
         try {
             jsonNode = objectMapper.readTree(responseBody);
@@ -92,4 +53,3 @@ public class TokenService {
         return jsonNode.get("access_token").asText();
     }
 }
-
