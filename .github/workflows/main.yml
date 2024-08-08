@@ -47,19 +47,14 @@ jobs:
     # Step 6: Execute tests against the deployed application
     - name: Run tests
       run: mvn test
-    
-    # Step 7: Publish HTML results
 
-    # a. For TestNG/JUnit
-    - name: Publish Test Results
-      uses: dorny/test-reporter@v1
-      with:
-        name: Test Results
-        path: target/surefire-reports/*.xml
-        reporter: junit
-
-    # b. For Allure report
+    # Step 7: Generate Allure Report
     - name: Generate Allure Report
-      run: |
-        mvn allure:report
-        mvn allure:serve
+      run: mvn allure:report
+
+    # Step 8: Upload Allure Report to Artifacts
+    - name: Upload Allure Report
+      uses: actions/upload-artifact@v3
+      with:
+        name: allure-report
+        path: target/site/allure-maven-plugin
