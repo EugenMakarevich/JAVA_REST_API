@@ -52,9 +52,9 @@ jobs:
     - name: Generate Allure Report
       run: mvn allure:report
 
-    # Step 8: Upload Allure Report as Artifact
+    # Step 8: Upload Allure Report to Artifacts
     - name: Upload Allure Report
       uses: actions/upload-artifact@v3
       with:
         name: allure-report
-        path: target/allure-report/**
+        path: target/site/allure-maven-plugin
