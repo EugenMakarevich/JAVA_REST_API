@@ -46,15 +46,15 @@ jobs:
     
     # Step 6: Execute tests against the deployed application
     - name: Run tests
-      run: mvn test
+      run: mvn clean test
 
     # Step 7: Generate Allure Report
     - name: Generate Allure Report
       run: mvn allure:report
 
-    # Step 8: Upload Allure Report to Artifacts
+    # Step 8: Upload Allure Report as Artifact
     - name: Upload Allure Report
       uses: actions/upload-artifact@v3
       with:
         name: allure-report
-        path: target/site/allure-maven-plugin
+        path: target/allure-report/**
