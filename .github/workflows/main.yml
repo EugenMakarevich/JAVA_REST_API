@@ -1,0 +1,70 @@
+name: Java QA Automation Pipeline
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    # Step 1: Deploy API image to GitHub-hosted runner
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
+
+    - name: Pull API Docker image
+      run: docker pull coherentsolutions/rest-training:2.0
+
+    - name: Run API Docker container
+      run: docker run -d -p 49000:8082 coherentsolutions/rest-training:2.0
+
+    # Step 2: Install Java
+    - name: Setup Java
+      uses: actions/setup-java@v3
+      with:
+        java-version: '21'
+        distribution: 'adopt'
+    
+    # Step 3: Install Maven
+    - name: Setup Maven
+      uses: actions/setup-java@v3
+      with:
+        java-version: '21'
+        distribution: 'adopt'
+        cache: maven
+
+    # Step 4: Check out your code from the git repository
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    # Step 5: Build your framework
+    - name: Build with Maven
+      run: mvn clean install
+    
+    # Step 6: Execute tests against the deployed application
+    - name: Run tests
+      run: mvn test
+    
+    # Step 7: Publish HTML results
+
+    # a. For TestNG/JUnit
+    - name: Publish Test Results
+      uses: dorny/test-reporter@v1
+      with:
+        name: Test Results
+        path: target/surefire-reports/*.xml
+        reporter: junit
+
+    # b. For Allure report
+    - name: Generate Allure Report
+      run: |
+        mvn allure:report
+        mvn allure:serve
