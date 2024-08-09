@@ -15,4 +15,7 @@ public class Configuration {
     public static final String API_USER_ENDPOINT = ConfigUtils.getProperty("api.users.endpoint");
     public static final String API_USER_UPLOAD_ENDPOINT = API_USER_ENDPOINT + ConfigUtils.getProperty("api.users.upload.endpoint");
     public static final String TEST_DATA_PATH = ConfigUtils.getProperty("testdata.path");
+    public static final String OLDER_THAN_PARAM = ConfigUtils.getProperty("api.users.olderthan.param");
+    public static final String YOUNGER_THAN_PARAM = ConfigUtils.getProperty("api.users.youngerthan.param");
+    public static final String SEX_PARAM = ConfigUtils.getProperty("api.users.sex.param");
 }

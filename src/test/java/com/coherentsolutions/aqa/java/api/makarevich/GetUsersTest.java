@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 
+import static com.coherentsolutions.aqa.java.api.makarevich.configuration.Configuration.*;
 import static com.coherentsolutions.aqa.java.api.makarevich.factory.UserFactory.*;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -27,7 +28,7 @@ public class GetUsersTest extends TestBase {
         User userYoungerThan = generateRandomUser(youngerAge);
         userService.createUser(userOlderThan);
         userService.createUser(userYoungerThan);
-        ArrayList<User> users = userService.getUsersOlderThan(age);
+        ArrayList<User> users = userService.getUsers(OLDER_THAN_PARAM, Integer.toString(age));
         assertTrue(users.contains(userOlderThan), "User is not present");
         assertFalse(users.contains(userYoungerThan), "User is present");
     }
@@ -42,7 +43,7 @@ public class GetUsersTest extends TestBase {
         User userYoungerThan = generateRandomUser(youngerAge);
         userService.createUser(userOlderThan);
         userService.createUser(userYoungerThan);
-        ArrayList<User> users = userService.getUsersYoungerThan(age);
+        ArrayList<User> users = userService.getUsers(YOUNGER_THAN_PARAM, Integer.toString(age));
         assertTrue(users.contains(userYoungerThan), "User is not present");
         assertFalse(users.contains(userOlderThan), "User is present");
     }
@@ -55,7 +56,7 @@ public class GetUsersTest extends TestBase {
         User userWithOppositeSex = generateRandomUser(oppositeSex);
         userService.createUser(userWithDefinedSex);
         userService.createUser(userWithOppositeSex);
-        ArrayList<User> users = userService.getUsersBySex(sex);
+        ArrayList<User> users = userService.getUsers(SEX_PARAM, String.valueOf(sex));
         assertTrue(users.contains(userWithDefinedSex), "User is not present");
         assertFalse(users.contains(userWithOppositeSex), "User is present");
     }

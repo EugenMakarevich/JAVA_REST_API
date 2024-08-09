@@ -1,70 +1,64 @@
 package com.coherentsolutions.aqa.java.api.makarevich.service;
 
-import com.coherentsolutions.aqa.java.api.makarevich.constants.UserSex;
-import com.coherentsolutions.aqa.java.api.makarevich.httpClient.HttpClientBase;
-import com.coherentsolutions.aqa.java.api.makarevich.httpClient.HttpResponseWrapper;
 import com.coherentsolutions.aqa.java.api.makarevich.model.User;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.qameta.allure.Step;
+import io.restassured.common.mapper.TypeRef;
+import io.restassured.http.ContentType;
+import io.restassured.response.ValidatableResponse;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URISyntaxException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 
-import static com.coherentsolutions.aqa.java.api.makarevich.configuration.Configuration.API_USER_ENDPOINT;
-import static com.coherentsolutions.aqa.java.api.makarevich.configuration.Configuration.API_USER_UPLOAD_ENDPOINT;
+import static com.coherentsolutions.aqa.java.api.makarevich.configuration.Configuration.*;
 import static com.coherentsolutions.aqa.java.api.makarevich.factory.UserFactory.*;
+import static com.coherentsolutions.aqa.java.api.makarevich.service.TokenService.getReadToken;
+import static com.coherentsolutions.aqa.java.api.makarevich.service.TokenService.getWriteToken;
+import static io.restassured.RestAssured.given;
 import static org.apache.http.HttpStatus.SC_CREATED;
 import static org.apache.http.HttpStatus.SC_OK;
 
 @Slf4j
 public class UserService {
-    private HttpClientBase httpClientBase;
     private ObjectMapper objectMapper;
 
     public UserService() {
-        httpClientBase = new HttpClientBase();
         objectMapper = new ObjectMapper();
     }
 
     @Step("Get users")
-    public ArrayList<User> getUsers(Integer olderThan, String sex, Integer youngerThan) {
-        try {
-            Map<String, String> queryParams = queryParamsConstructor(olderThan, sex, youngerThan);
-
-            HttpResponseWrapper response = httpClientBase.get(API_USER_ENDPOINT, queryParams);
-            if (response.getStatusCode() != SC_OK) {
-                throw new RuntimeException("Unexpected response status: " + response.getStatusCode());
-            }
-            return objectMapper.readValue(response.getResponseBody(), new TypeReference<ArrayList<User>>() {
-            });
-        } catch (IOException | URISyntaxException e) {
-            throw new RuntimeException("Failed to get users", e);
-        }
-    }
-
-    @Step("Get all users")
     public ArrayList<User> getUsers() {
-        return getUsers(null, null, null);
+        return given()
+                .header("Authorization", "Bearer " + getReadToken())
+                .when()
+                .get(API_REQUEST_URI + API_USER_ENDPOINT)
+                .then()
+                .statusCode(SC_OK)
+                .extract()
+                .body()
+                .as(new TypeRef<ArrayList<User>>() {
+                });
     }
 
-    @Step("Get users older than")
-    public ArrayList<User> getUsersOlderThan(Integer olderThan) {
-        return getUsers(olderThan, null, null);
-    }
-
-    @Step("Get users younger than")
-    public ArrayList<User> getUsersYoungerThan(Integer youngerThan) {
-        return getUsers(null, null, youngerThan);
-    }
-
-    @Step("Get users by sex")
-    public ArrayList<User> getUsersBySex(UserSex sex) {
-        return getUsers(null, String.valueOf(sex), null);
+    @Step("Get users")
+    public ArrayList<User> getUsers(String key, String value) {
+        return given()
+                .header("Authorization", "Bearer " + getReadToken())
+                .param(key, value)
+                .when()
+                .get(API_REQUEST_URI + API_USER_ENDPOINT)
+                .then()
+                .statusCode(SC_OK)
+                .extract()
+                .body()
+                .as(new TypeRef<ArrayList<User>>() {
+                });
     }
 
     @Step("Get random user from database")
@@ -83,35 +77,27 @@ public class UserService {
     }
 
     @Step("Create user")
-    public HttpResponseWrapper createUser(User user) {
-        try {
-            String userJson = objectMapper.writeValueAsString(user);
-            HttpResponseWrapper response = httpClientBase.post(API_USER_ENDPOINT, userJson);
-            if (response.getStatusCode() != SC_CREATED) {
-                throw new RuntimeException("Unexpected response status: " + response.getStatusCode());
-            }
-            return response;
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException("Failed to convert zip code to JSON", e);
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to send POST request", e);
-        }
+    public ValidatableResponse createUser(User user) {
+        return given()
+                .header("Authorization", "Bearer " + getWriteToken())
+                .contentType(ContentType.JSON)
+                .body(user)
+                .when()
+                .post(API_REQUEST_URI + API_USER_ENDPOINT)
+                .then()
+                .statusCode(SC_CREATED);
     }
 
-    @Step("Create user and verify specified status code")
-    public HttpResponseWrapper createUser(User user, int statusCode) {
-        try {
-            String userJson = objectMapper.writeValueAsString(user);
-            HttpResponseWrapper response = httpClientBase.post(API_USER_ENDPOINT, userJson);
-            if (response.getStatusCode() != statusCode) {
-                throw new RuntimeException("Unexpected response status: " + response.getStatusCode());
-            }
-            return response;
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException("Failed to convert zip code to JSON", e);
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to send POST request", e);
-        }
+    @Step("Create user")
+    public ValidatableResponse createUser(User user, int statusCode) {
+        return given()
+                .header("Authorization", "Bearer " + getWriteToken())
+                .contentType(ContentType.JSON)
+                .body(user)
+                .when()
+                .post(API_REQUEST_URI + API_USER_ENDPOINT)
+                .then()
+                .statusCode(statusCode);
     }
 
     @Step("Create multiple users")
@@ -126,49 +112,40 @@ public class UserService {
         return users;
     }
 
-    @Step("Update user")
-    public HttpResponseWrapper updateUser(User userNewValues, User userToChange, int statusCode) {
-        try {
-            String userJson = generateUserUpdateJson(userNewValues, userToChange);
-            HttpResponseWrapper response = httpClientBase.put(API_USER_ENDPOINT, userJson);
-            if (response.getStatusCode() != statusCode) {
-                throw new RuntimeException("Unexpected response status: " + response.getStatusCode());
-            }
-            return response;
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException("Failed to convert to JSON", e);
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to send PUT request", e);
-        }
+    @Step("Update User")
+    public ValidatableResponse updateUser(User userNewValues, User userToChange, int statusCode) {
+        return given()
+                .header("Authorization", "Bearer " + getWriteToken())
+                .contentType(ContentType.JSON)
+                .body(generateUserUpdateJson(userNewValues, userToChange))
+                .when()
+                .patch(API_REQUEST_URI + API_USER_ENDPOINT)
+                .then()
+                .statusCode(statusCode);
     }
 
     @Step("Delete user")
-    public HttpResponseWrapper deleteUser(User user, int statusCode) {
-        try {
-            String userJson = objectMapper.writeValueAsString(user);
-            HttpResponseWrapper response = httpClientBase.delete(API_USER_ENDPOINT, userJson);
-            if (response.getStatusCode() != statusCode) {
-                throw new RuntimeException("Unexpected response status: " + response.getStatusCode());
-            }
-            return response;
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to get users", e);
-        }
+    public ValidatableResponse deleteUser(User user, int statusCode) {
+        return given()
+                .header("Authorization", "Bearer " + getWriteToken())
+                .contentType(ContentType.JSON)
+                .body(user)
+                .when()
+                .delete(API_REQUEST_URI + API_USER_ENDPOINT)
+                .then()
+                .statusCode(statusCode);
     }
 
-    @Step("Upload user")
-    public HttpResponseWrapper uploadUser(File users, int statusCode) {
-        try {
-            HttpResponseWrapper response = httpClientBase.post(API_USER_UPLOAD_ENDPOINT, users);
-            if (response.getStatusCode() != statusCode) {
-                throw new RuntimeException("Unexpected response status: " + response.getStatusCode());
-            }
-            return response;
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException("Failed to convert zip code to JSON", e);
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to send POST request", e);
-        }
+    @Step("Upload User")
+    public ValidatableResponse uploadUser(File file, int statusCode) {
+        return given()
+                .header("Authorization", "Bearer " + getWriteToken())
+                .contentType(ContentType.MULTIPART)
+                .multiPart(file)
+                .when()
+                .post(API_REQUEST_URI + API_USER_UPLOAD_ENDPOINT)
+                .then()
+                .statusCode(statusCode);
     }
 
     @Step("Change random required user value")
@@ -242,20 +219,5 @@ public class UserService {
             log.error("Failed to convert to JSON", e);
             return null;
         }
-    }
-
-    @Step("Build query parameters string to filter users")
-    private Map<String, String> queryParamsConstructor(Integer olderThan, String sex, Integer youngerThan) {
-        Map<String, String> queryParams = new HashMap<>();
-        if (olderThan != null) {
-            queryParams.put("olderThan", String.valueOf(olderThan));
-        }
-        if (sex != null) {
-            queryParams.put("sex", sex);
-        }
-        if (youngerThan != null) {
-            queryParams.put("youngerThan", String.valueOf(youngerThan));
-        }
-        return queryParams;
     }
 }
