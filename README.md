@@ -300,10 +300,30 @@
     <li>Mark tests with bugs with the corresponding Allure annotation</li>
 </ul>
 
-<h2>Final Task - Rest Assured:</h2>
+<h2>Task 9 - Rest Assured</h2>
+<ul>
+    <li>Add the Rest Assured to the project</li>
+    <li>Change approach to use RestAssured without changing the tests</li>
+    <li>Make sure tests work as expected</li>
+</ul>
+
+<h2>Final Task - GitHub Actions:</h2>
 <ul>
     <li>Pull one more Docker image (containing an improved web-service) and start the container</li>
     <li>Execute all tests in the project with Apache HTTP Client</li>
     <li>Execute all tests in the project with Rest Assured Framework</li>
     <li>Make sure ALL tests are passed</li>
+    <li>Create and add yaml file to your repo, where you should describe pipeline to execute tests from your automation framework</li>
+    <li>Trigger action and make sure all test are passed and Allure report is created</li>
 </ul>
+
+YAML file should describe next steps:
+<ol>
+    <li>1. Deploy API image to Github-hosted runner (better use ubuntu-latest)</li>
+    <li>Install Java</li>
+    <li>Install Maven/Gradle</li>
+    <li>Check out your code from git repository</li>
+    <li>Build your framework</li>
+    <li>Execute tests against deployed application</li>
+    <li>Publish HTML results for Allure report</li>
+</ol>
