@@ -1,55 +1,46 @@
 package com.coherentsolutions.aqa.java.api.makarevich.service;
 
-import com.coherentsolutions.aqa.java.api.makarevich.httpClient.HttpClientBase;
-import com.coherentsolutions.aqa.java.api.makarevich.httpClient.HttpResponseWrapper;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.qameta.allure.Step;
+import io.restassured.common.mapper.TypeRef;
+import io.restassured.http.ContentType;
+import io.restassured.response.Response;
 
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
 
-import static com.coherentsolutions.aqa.java.api.makarevich.configuration.Configuration.API_ZIPCODES_ENDPOINT;
-import static com.coherentsolutions.aqa.java.api.makarevich.configuration.Configuration.API_ZIPCODES_EXPAND_ENDPOINT;
+import static com.coherentsolutions.aqa.java.api.makarevich.configuration.Configuration.*;
+import static com.coherentsolutions.aqa.java.api.makarevich.service.TokenService.getReadToken;
+import static com.coherentsolutions.aqa.java.api.makarevich.service.TokenService.getWriteToken;
+import static io.restassured.RestAssured.given;
 import static org.apache.http.HttpStatus.SC_CREATED;
 import static org.apache.http.HttpStatus.SC_OK;
 
 public class ZipCodeService {
-    private HttpClientBase httpClientBase;
-    private ObjectMapper objectMapper;
-
-    public ZipCodeService() {
-        httpClientBase = new HttpClientBase();
-        objectMapper = new ObjectMapper();
-    }
-
     @Step("Get zip codes")
     public ArrayList<String> getZipCodes() {
-        try {
-            HttpResponseWrapper response = httpClientBase.get(API_ZIPCODES_ENDPOINT);
-            if (response.getStatusCode() != SC_OK) {
-                throw new RuntimeException("Unexpected response status: " + response.getStatusCode());
-            }
-            return response.getReponseBodyAsArray();
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to get zip codes", e);
-        }
+        return given()
+                .header("Authorization", "Bearer " + getReadToken())
+                .when()
+                .get(API_REQUEST_URI + API_ZIPCODES_ENDPOINT)
+                .then()
+                .statusCode(SC_OK)
+                .extract()
+                .body()
+                .as(new TypeRef<ArrayList<String>>() {
+                });
     }
 
     @Step("Add zip codes")
-    public HttpResponseWrapper addZipCode(String... zipCode) {
-        try {
-            String jsonArray = objectMapper.writeValueAsString(List.of(zipCode));
-            HttpResponseWrapper response = httpClientBase.post(API_ZIPCODES_EXPAND_ENDPOINT, jsonArray);
-            if (response.getStatusCode() != SC_CREATED) {
-                throw new RuntimeException("Unexpected response status: " + response.getStatusCode());
-            }
-            return response;
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException("Failed to convert zip code to JSON", e);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+    public Response addZipCode(String... zipCode) {
+        return given()
+                .header("Authorization", "Bearer " + getWriteToken())
+                .contentType(ContentType.JSON)
+                .accept(ContentType.JSON)
+                .body(zipCode)
+                .when()
+                .post(API_REQUEST_URI + API_ZIPCODES_EXPAND_ENDPOINT)
+                .then()
+                .statusCode(SC_CREATED)
+                .extract()
+                .response();
     }
 }

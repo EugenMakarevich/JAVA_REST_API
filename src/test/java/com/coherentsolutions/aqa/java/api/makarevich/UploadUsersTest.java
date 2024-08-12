@@ -1,8 +1,8 @@
 package com.coherentsolutions.aqa.java.api.makarevich;
 
-import com.coherentsolutions.aqa.java.api.makarevich.httpClient.HttpResponseWrapper;
 import com.coherentsolutions.aqa.java.api.makarevich.model.User;
 import io.qameta.allure.Issue;
+import io.restassured.response.ValidatableResponse;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
@@ -18,12 +18,12 @@ public class UploadUsersTest extends TestBase {
     public void uploadValidUsersTest() {
         userService.createMultipleUsers();
         File json = new File(TEST_DATA_PATH + "validUsers.json");
-        HttpResponseWrapper response = userService.uploadUser(json, SC_CREATED);
+        ValidatableResponse response = userService.uploadUser(json, SC_CREATED);
         ArrayList<User> usersFromJson = userService.getUsersFromJson(json);
         int numberOfUsersFromJson = usersFromJson.size();
         ArrayList<User> usersAfterUpload = userService.getUsers();
         assertEquals(usersFromJson, usersAfterUpload, "User lists are not equal");
-        assertEquals(response.getResponseBody(), UPLOAD_RESPONSE_BODY + numberOfUsersFromJson, "Response body is different from expected");
+        assertEquals(response.extract().body().asString(), UPLOAD_RESPONSE_BODY + numberOfUsersFromJson, "Response body is different from expected");
     }
 
     @Test
