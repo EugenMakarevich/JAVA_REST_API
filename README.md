@@ -1,5 +1,5 @@
 <h1>REST API Testing Training</h1>
-<p>This is the project I developed as part of my REST API testing training to become a Java QA Automation Engineer within the company.</p>
+<p>This is the project I developed as part of my REST API testing training for Java QA Automation Engineer role</p>
 
 <h2>Technology Stack:</h2>
 <ul>
